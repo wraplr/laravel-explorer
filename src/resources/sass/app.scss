@@ -1,0 +1,61 @@
+@mixin transform($transforms) {
+    -moz-transform: $transforms;
+    -o-transform: $transforms;
+    -ms-transform: $transforms;
+    -webkit-transform: $transforms;
+    transform: $transforms;
+}
+
+.laravel-explorer {
+    .breadcrumb {
+        .breadcrumb-item {
+            font-weight: bold;
+        }
+    }
+
+    .content {
+        .item {
+            .square {
+                width: 100%;
+                height: 100%;
+                padding: 5px;
+                border: 1px solid #dbe0e5;
+                border-radius: 5px;
+
+                img {
+                    width: 100%;
+                }
+
+                &:hover {
+                    background: #e2e6ea;
+                }
+
+                &.selected {
+                    background: #e2e6ea;
+                    box-shadow: 0 0 0 3px #ebeced;
+                }
+            }
+
+            .name {
+                input:read-only {
+                    cursor: default;
+                }
+
+                div.input-group-append {
+                    button {
+                        img {
+                            width: 18px;
+                            height: 18px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &.input-dialog {
+        .modal-dialog {
+            top: 100px;
+        }
+    }
+}
