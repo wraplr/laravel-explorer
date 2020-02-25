@@ -1,0 +1,29 @@
+{
+    "name": "wraplr/laravel-explorer",
+    "description": "A simple filemanager for Laravel",
+    "license": "MIT",
+    "keywords": [
+        "filemanager",
+        "laravel",
+        "upload",
+        "file",
+        "image"
+    ], 
+    "require": {
+        "php": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "WrapLr\\LaravelExplorer\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "WrapLr\\LaravelExplorer\\LaravelExplorerServiceProvider"
+            ]
+        },
+        "aliases": {
+        }
+    } 
+}
