@@ -23,7 +23,7 @@ class ViewController extends BaseController
         }
 
         // get image views
-        $imageViews = config('wle.image_views');
+        $imageViews = config('wlrle.image_views');
 
         // do we have this view?
         if (!$imageViews || !isset($imageViews[$viewName])) {

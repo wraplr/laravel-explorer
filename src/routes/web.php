@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['prefix' => config('wle.url_prefix'), 'middleware' => config('wle.middleware'), 'namespace' => '\WrapLr\LaravelExplorer\App\Http\Controllers'], function () {
+Route::group(['prefix' => config('wlrle.url_prefix'), 'middleware' => config('wlrle.middleware'), 'namespace' => '\WrapLr\LaravelExplorer\App\Http\Controllers'], function () {
     Route::get('/', 'ExplorerController@show')->name('wraplr.laravel-explorer.show');
     Route::get('/refresh', 'ExplorerController@refresh')->name('wraplr.laravel-explorer.refresh');
 
