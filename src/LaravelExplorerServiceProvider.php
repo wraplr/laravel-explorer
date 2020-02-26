@@ -36,7 +36,7 @@ class LaravelExplorerServiceProvider extends ServiceProvider
 
         // publish config file
         $this->publishes([
-            __DIR__.'/config/wle.php' => config_path('wle.php'),
+            __DIR__.'/config/wlrle.php' => config_path('wlrle.php'),
         ]);
     }
 

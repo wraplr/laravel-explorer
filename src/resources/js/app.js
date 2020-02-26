@@ -65,7 +65,7 @@
 
         // change directory, content directories
         $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .directory .square').on('dblclick', function() {
-            changeDirectory(_this, mainDialogRef, $(this).parent().attr('data-id'));
+            changeDirectory(_this, mainDialogRef, $(this).closest('.item').attr('data-id'));
         });
 
         // select item(s)
@@ -92,8 +92,18 @@
 
         // choose file
         $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .file .square').on('dblclick', function() {
+            // store selected item
+            var selectedSquare = this;
+
+            // deselect other items, but this
+            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').each(function(i, square) {
+                if (square != selectedSquare) {
+                    $(square).removeClass('selected');
+                }
+            });
+
             // call onSelected callback
-            _this.options.onSelected([$(this).parent().attr('data-id')]);
+            _this.options.onSelected([$(this).closest('.item').attr('data-id')]);
 
             // close dialog
             mainDialogRef.close();
@@ -113,7 +123,7 @@
             // focus out, so rename it
             $(this).off('blur').on('blur', function() {
                 // get item
-                var item = input.parent().parent();
+                var item = input.closest('.item');
 
                 // on renamed
                 function renamed(name)

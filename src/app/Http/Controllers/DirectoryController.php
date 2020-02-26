@@ -167,7 +167,7 @@ class DirectoryController extends BaseController
                             $this->deleteFile($file->storagePath());
 
                             // delete file's all views
-                            foreach (config('wle.image_views') as $viewName => $viewTrans) {
+                            foreach (config('wlrle.image_views') as $viewName => $viewTrans) {
                                 $this->deleteFile($file->viewPath($viewName));
                             }
 

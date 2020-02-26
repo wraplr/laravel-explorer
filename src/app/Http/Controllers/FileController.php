@@ -35,7 +35,7 @@ class FileController extends BaseController
         $path = Carbon::now()->format('Y/m/d');
 
         // base directory
-        $base = Storage::disk('public')->path(config('wle.upload_directory'));
+        $base = Storage::disk('public')->path(config('wlrle.upload_directory'));
 
         // full path
         $full = $base.'/'.$path;
@@ -161,7 +161,7 @@ class FileController extends BaseController
                 $this->deleteFile($file->storagePath());
 
                 // delete file's all views
-                foreach (config('wle.image_views') as $viewName => $viewTrans) {
+                foreach (config('wlrle.image_views') as $viewName => $viewTrans) {
                     $this->deleteFile($file->viewPath($viewName));
                 }
 

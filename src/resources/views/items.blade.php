@@ -19,7 +19,7 @@
         <div class="square d-flex flex-column justify-content-center mb-1">
             @if ($file->isImage())
                 @if ($file->canView())
-                    <img src="{{ $file->viewUrl(config('wle.default_image_view')) }}" />
+                    <img src="{{ $file->viewUrl(config('wlrle.default_image_view')) }}" />
                 @else
                     <img src="{{ $file->storageUrl() }}" />
                 @endif
