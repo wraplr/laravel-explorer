@@ -95,7 +95,7 @@ class FileController extends BaseController
 
             // return invalid mim type error
             return response()->json([
-                'message' => 'Invalid mime type ('.$wleFile->mime_type.')!',
+                'message' => 'Invalid mime type (<strong>'.$file->getClientOriginalName().'</strong>: '.$wleFile->mime_type.')!',
             ], 400);
         }
 

@@ -7,6 +7,14 @@
 }
 
 .laravel-explorer {
+    .errors {
+        width: 100%;
+
+        strong {
+            font-weight: bold;
+        }
+    }
+
     .breadcrumb {
         .breadcrumb-item {
             font-weight: bold;

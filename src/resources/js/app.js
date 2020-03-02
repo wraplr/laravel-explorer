@@ -17,6 +17,7 @@
             spinnerIcon: '<span class="spinner-border" role="status"></span>',
             closeByBackdrop: true,
             closeByKeyboard: true,
+            selectMultiple: true,
             onSelected: function(files){},
         }, options);
 
@@ -25,6 +26,9 @@
 
         // actual file list
         this.files = [];
+
+        // error counts
+        this.errorCount = 0;
     };
 
     // private methods
@@ -41,22 +45,50 @@
         return (url1 + url2);
     }
 
-    function loading(mainDialogRef)
+    function loading(_this, mainDialogRef)
     {
         // start spinner, disable buttons
         mainDialogRef.set('spinner', true).getButtons().prop('disabled', true);
     }
 
-    function loaded(mainDialogRef)
+    function loaded(_this, mainDialogRef)
     {
-        // stop spinner, enable buttons
-        mainDialogRef.set('spinner', false).getButtons().prop('disabled', false);
+        // stop spinner, enable cancel button
+        mainDialogRef.set('spinner', false).getButton('btn-cancel').prop('disabled', false);
+
+        // enable ok button if selections are ok
+        enableOkButton(_this, mainDialogRef);
     }
 
-    function fail(mainDialogRef, messages)
+    function fail(_this, mainDialogRef, messages)
     {
         // display closable errors
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer').prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + ($.type(messages) === 'string' ? messages : Object.values(messages).join(' | ')) + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+        if ($.type(messages) === 'string') {
+            messages = {'error': messages};
+        }
+
+        // show an alert for each error
+        $.each(messages, function(i, message) {
+            // get new id for error
+            var errorId = _this.errorCount++;
+
+            // display the alert
+            $(mainDialogRef.getModalBody()).find('.laravel-explorer .errors').append('<div class="alert alert-danger alert-dismissible fade show" role="alert" data-error-id="' + errorId + '">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+
+            // hide it after 3 seconds
+            $('div[data-error-id=' + errorId + ']').delay(5000).slideUp(500, function() {
+                $(this).alert('close');
+            });
+        });
+    }
+
+    function enableOkButton(_this, mainDialogRef)
+    {
+        // selected file count
+        var selectedFileCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .file .square.selected').length;
+
+        // enable ok button
+        mainDialogRef.getButton('btn-ok').prop('disabled', !selectedFileCount || (!_this.options.selectMultiple && selectedFileCount > 1));
     }
 
     function bindToItems(_this, mainDialogRef)
@@ -82,6 +114,8 @@
             } else {
                 $(this).addClass('selected');
             }
+
+            enableOkButton(_this, mainDialogRef);
         });
 
         // deselect item(s)
@@ -91,6 +125,8 @@
             if (!exceptions.is(e.target) && exceptions.has(e.target).length == 0) {
                 $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
             }
+
+            enableOkButton(_this, mainDialogRef);
         });
 
         // choose file
@@ -260,7 +296,7 @@
     function refresh(_this, mainDialogRef)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // get dir list in deeper level
         $.ajax({
@@ -277,17 +313,17 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
     function changeDirectory(_this, mainDialogRef, directoryId)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // get dir list in deeper level
         $.ajax({
@@ -310,17 +346,17 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
     function createDirectory(_this, mainDialogRef, directoryName)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // post directory/create
         $.ajax({
@@ -338,10 +374,10 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
 
         // return main object
@@ -351,7 +387,7 @@
     function renameDirectory(_this, mainDialogRef, directoryId, name, onRenamed, onFailed)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // rename directory
         $.ajax({
@@ -374,10 +410,10 @@
             }
 
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
@@ -396,10 +432,10 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
@@ -418,17 +454,17 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
     function renameFile(_this, mainDialogRef, fileId, name, onRenamed, onFailed)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // rename file
         $.ajax({
@@ -451,17 +487,17 @@
             }
 
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
     function deleteItems(_this, mainDialogRef, directories, files)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // delete directories and/or files with promises
         var def = $.Deferred(), requests = [];
@@ -488,7 +524,7 @@
     function show(_this, mainDialogRef)
     {
         // loading
-        loading(mainDialogRef);
+        loading(_this, mainDialogRef);
 
         // open show blade
         $.ajax({
@@ -656,7 +692,7 @@
                                 this.defaultOptions.error(file, 'An error occured! (' + file.name + ')');
 
                                 // no success
-                                fail(mainDialogRef, message);
+                                fail(_this, mainDialogRef, message);
                             }, queuecomplete: function() {
                                 // enable close button
                                 uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
@@ -697,10 +733,10 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(mainDialogRef, jqXHR.responseJSON.message);
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
-            loaded(mainDialogRef);
+            loaded(_this, mainDialogRef);
         });
     }
 
@@ -756,6 +792,8 @@
                 },
             ],
             onShow: function(mainDialogRef) {
+                // disable buttons
+                mainDialogRef.getButtons().prop('disabled', true);
             },
             onShown: function(mainDialogRef) {
                 // call show function
