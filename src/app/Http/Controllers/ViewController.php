@@ -31,7 +31,7 @@ class ViewController extends BaseController
         }
 
         // check if it is a gdimage
-        if (!$file->canView() || !(imagetypes() & Image::imageType($file->mime_type))) {
+        if (!$file->hasViews() || !(imagetypes() & Image::imageType($file->mime_type))) {
             return Redirect::to($file->storageUrl(), 302);
         }
 

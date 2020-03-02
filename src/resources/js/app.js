@@ -20,8 +20,11 @@
             onSelected: function(files){},
         }, options);
 
-        // store main dialog
+        // reference to main dialog
         this.mainDialog = null;
+
+        // actual file list
+        this.files = [];
     };
 
     // private methods
@@ -50,10 +53,10 @@
         mainDialogRef.set('spinner', false).getButtons().prop('disabled', false);
     }
 
-    function fail(message)
+    function fail(mainDialogRef, messages)
     {
-        // todo: display error message here
-        console.log(message);
+        // display closable errors
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer').prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">' + ($.type(messages) === 'string' ? messages : Object.values(messages).join(' | ')) + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
     }
 
     function bindToItems(_this, mainDialogRef)
@@ -103,7 +106,7 @@
             });
 
             // call onSelected callback
-            _this.options.onSelected([$(this).closest('.item').attr('data-id')]);
+            _this.options.onSelected(toFileInfoList(_this, [parseInt($(this).closest('.item').attr('data-id'))]));
 
             // close dialog
             mainDialogRef.close();
@@ -240,6 +243,20 @@
         });
     }
 
+    function toFileInfoList(_this, files)
+    {
+        var fileInfoList = [];
+
+        // search for file info in files
+        $.each(_this.files, function(i, fileInfo) {
+            if ($.inArray(fileInfo.id, files) > -1) {
+                fileInfoList.push(fileInfo);
+            }
+        });
+
+        return fileInfoList;
+    }
+
     function refresh(_this, mainDialogRef)
     {
         // loading
@@ -250,6 +267,9 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, 'refresh'),
         }).done(function(result) {
+            // update files
+            _this.files = result.files;
+
             // update content
             $(mainDialogRef.getModalBody()).find('.content').html(result.content);
 
@@ -257,7 +277,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -274,6 +294,9 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, 'directory/'  + directoryId + '/change/'),
         }).done(function(result) {
+            // update files
+            _this.files = result.files;
+
             // update breadcrumb dirs
             $(mainDialogRef.getModalBody()).find('.breadcrumb').html(result.breadcrumb);
 
@@ -287,7 +310,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -315,7 +338,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -351,7 +374,7 @@
             }
 
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -373,7 +396,7 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -395,7 +418,7 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -428,7 +451,7 @@
             }
 
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -472,6 +495,9 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, ''),
         }).done(function(result) {
+            // update files
+            _this.files = result.files;
+
             // update main container
             $(mainDialogRef.getModalBody()).html(result.content);
 
@@ -488,11 +514,11 @@
                 $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
                     if ($(item).find('.square').hasClass('selected')) {
                         if ($(item).hasClass('directory')) {
-                            directories.push($(item).attr('data-id'));
+                            directories.push(parseInt($(item).attr('data-id')));
                         }
 
                         if ($(item).hasClass('file')) {
-                            files.push($(item).attr('data-id'));
+                            files.push(parseInt($(item).attr('data-id')));
                         }
                     }
                 });
@@ -610,7 +636,7 @@
                     onShow: function(uploadDialogRef) {
                         uploadDialogRef.getModalBody().addClass('dropzone').dropzone({
                             url: mergeUrl(_this.options.baseUrl, 'file/upload'),
-                            uploadMultiple: true,
+                            uploadMultiple: false,
                             parallelUploads: 1,
                             accept: function(file, done) {
                                 done();
@@ -630,7 +656,7 @@
                                 this.defaultOptions.error(file, 'An error occured! (' + file.name + ')');
 
                                 // no success
-                                fail(message);
+                                fail(mainDialogRef, message);
                             }, queuecomplete: function() {
                                 // enable close button
                                 uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
@@ -671,7 +697,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(jqXHR.responseJSON.message);
+            fail(mainDialogRef, jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(mainDialogRef);
@@ -707,13 +733,13 @@
 
                         $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file').each(function(index, item) {
                             if ($(item).find('.square').hasClass('selected')) {
-                                files.push($(item).attr('data-id'));
+                                files.push(parseInt($(item).attr('data-id')));
                             }
                         });
 
                         if (files.length) {
                             // call onSelected callback
-                            _this.options.onSelected(files);
+                            _this.options.onSelected(toFileInfoList(_this, files));
                         }
 
                         // close the dialog

@@ -21,26 +21,26 @@ class WleFile extends Model
         return (Image::imageType($this->mime_type) > 0);
     }
 
-    public function canView()
+    public function hasViews()
     {
-        return in_array(Image::imageType($this->mime_type), config('wlrle.valid_image_view_types'));
+        return in_array(Image::imageType($this->mime_type), config('wlrle.valid_view_image_types'));
     }
 
-    public function viewPath($view_name)
+    public function viewPath($viewName)
     {
-        return Storage::disk('public')->path(config('wlrle.upload_directory')).'/'.$view_name.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+        return Storage::disk('public')->path(config('wlrle.upload_directory')).'/'.$viewName.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
     }
 
-    public function viewUrl($view_name)
+    public function viewUrl($viewName)
     {
-        if (!$view_name || !isset(config('wlrle.image_views')[$view_name])) {
+        if (!$viewName || !isset(config('wlrle.image_views')[$viewName])) {
             return $this->storageUrl();
         }
 
         if (config('wlrle.transform_path_to_name')) {
-            return Storage::url(config('wlrle.upload_directory')).'/'.$view_name.'/'.str_replace('/', '', $this->path).base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.upload_directory')).'/'.$viewName.'/'.str_replace('/', '', $this->path).base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
         } else {
-            return Storage::url(config('wlrle.upload_directory')).'/'.$view_name.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.upload_directory')).'/'.$viewName.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
         }
     }
 

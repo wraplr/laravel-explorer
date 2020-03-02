@@ -18,7 +18,7 @@
     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 mt-4 item file mb-5" data-id="{{ $file->id }}">
         <div class="square d-flex flex-column justify-content-center mb-1">
             @if ($file->isImage())
-                @if ($file->canView())
+                @if ($file->hasViews())
                     <img src="{{ $file->viewUrl(config('wlrle.default_image_view')) }}" />
                 @else
                     <img src="{{ $file->storageUrl() }}" />

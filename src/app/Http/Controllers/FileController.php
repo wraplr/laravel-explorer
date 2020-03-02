@@ -46,42 +46,57 @@ class FileController extends BaseController
         }
 
         // get uploaded file
-        $files = $request->file('file');
+        $file = $request->file('file');
 
-        // save uploaded files
-        foreach ($files as $file) {
-            // check for unique name
-            $fileName = $file->getClientOriginalName();
+        // check for unique name
+        $fileName = $file->getClientOriginalName();
 
-            // get all names
-            $fileNames = $currentDirectory->files->pluck('name')->all();
+        // get all names
+        $fileNames = $currentDirectory->files->pluck('name')->all();
 
-            // rename it, if any
-            $fileIndex = 0;
-            while (in_array($fileName, $fileNames)) {
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).' ('.(++$fileIndex).')'.(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == '' ? '' : '.').pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
-            }
+        // rename it, if any
+        $fileIndex = 0;
+        while (in_array($fileName, $fileNames)) {
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).' ('.(++$fileIndex).')'.(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == '' ? '' : '.').pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+        }
 
-            // create model
-            $wleFile = new WleFile([
-                'name' => $fileName,
-                'mime_type' => '', // will get it after move
-                'path' => $path,
-                'extension' => strtolower($file->getClientOriginalExtension()),
-                'size' => $file->getSize(),
-            ]);
+        // create model
+        $wleFile = new WleFile([
+            'name' => $fileName,
+            'mime_type' => mime_content_type($file->getPathName()),
+            'path' => $path,
+            'extension' => strtolower($file->getClientOriginalExtension()),
+            'size' => $file->getSize(),
+        ]);
 
+        if (in_array($wleFile->mime_type, config('wlrle.valid_file_mime_types'))) {
             // create new file in database
             $currentDirectory->files()->save($wleFile);
 
             // move file to path
-            $file->move($full, base_convert($wleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension());
+            if (!$file->move($full, base_convert($wleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension())) {
+                // move error
+                $wleFile->delete();
 
-            // set mime type
-            $wleFile->mime_type = mime_content_type($wleFile->storagePath());
+                // return server error
+                return response()->json([
+                    'message' => 'Server error (can not move the file from temp folder)!',
+                ], 400);
+            }
+        } else {
+            // move to temp path
+            if ($file->move($base, $file->getFilename())) {
+                // temp path
+                $temp = $base.'/'.$file->getFilename();
 
-            // update it
-            $wleFile->save();
+                // delete temp file
+                unlink($temp);
+            }
+
+            // return invalid mim type error
+            return response()->json([
+                'message' => 'Invalid mime type ('.$wleFile->mime_type.')!',
+            ], 400);
         }
 
         // return success

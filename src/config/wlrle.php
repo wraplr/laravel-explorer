@@ -59,16 +59,16 @@ return [
     |--------------------------------------------------------------------------
     |
     | The files with the following mime types will be uploaded.
+    | See mime_content_type for more information.
     |
     */
 
     'valid_file_mime_types' => [
         'image/gif',
         'image/jpeg',
-        'image/pjpeg',
         'image/png',
         'image/webp',
-        'image/bmp',
+        'image/x-ms-bmp',
         'application/pdf',
         'text/plain',
     ],
@@ -88,15 +88,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Valid Image View Type
+    | Valid View Image Types
     |--------------------------------------------------------------------------
     |
-    | The views will be generated only for these image types. Check you gd image
-    | for supported image types.
+    | The image views will be generated only for these image types. Check your
+    | php gd image library for supported image types.
     |
     */
 
-    'valid_image_view_types' => [
+    'valid_view_image_types' => [
         IMG_GIF,
         IMG_JPG,
         IMG_PNG,

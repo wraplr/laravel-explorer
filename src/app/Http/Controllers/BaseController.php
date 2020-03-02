@@ -80,4 +80,37 @@ class BaseController extends Controller
         }
         rmdir($yearPath);
     }
+
+    protected function toFileInfoList($fileList)
+    {
+        // file info list
+        $fileInfoList = [];
+
+        // extract file info for every file
+        foreach ($fileList as $file) {
+            // create file info
+            $fileInfo = [
+                'id' => $file->id,
+                'name' => $file->name,
+                'url' => $file->storageUrl(),
+                'mimeType' => $file->mime_type,
+                'isImage' => $file->isImage(),
+            ];
+
+            // views
+            if ($file->isImage() && $file->hasViews() && count(config('wlrle.image_views')) > 0) {
+                $fileInfo['views'] = [];
+
+                foreach (config('wlrle.image_views') as $viewName => $viewTrans) {
+                    $fileInfo['views'][$viewName] = $file->viewUrl($viewName);
+                }
+            }
+
+            // add it to file info list
+            $fileInfoList[] = $fileInfo;
+        }
+
+        // return file info list
+        return $fileInfoList;
+    }
 }
