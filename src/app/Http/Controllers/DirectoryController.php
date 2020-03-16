@@ -33,10 +33,10 @@ class DirectoryController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'files' => $this->toFileInfoList($fileList),
             'parent' => ($currentDirectory->parent ? $currentDirectory->parent->id : 0),
             'content' => view('laravel-explorer::items', compact('directoryList', 'fileList'))->render(),
             'breadcrumb' => view('laravel-explorer::bread', compact('breadcrumbDirs'))->render(),
+            'fileInfoList' => $this->toFileInfoList($fileList),
         ], 200);
     }
 
