@@ -12,14 +12,14 @@ class BaseController extends Controller
 {
     protected function getCurrentWorkingDirectory()
     {
-        $currentDirectory = WleDirectory::whereId(Session::get('laravel-explorer.cwd'))->first();
+        $currentDirectory = WleDirectory::whereId(Session::get(config('wlrle.url_prefix').'.cwd'))->first();
 
         if (!$currentDirectory) {
             // get root
             $rootDirectory = WleDirectory::whereDirectoryId(null)->whereName('')->first();
 
             // it can't be null
-            Session::put('laravel-explorer.cwd', $rootDirectory->id);
+            Session::put(config('wlrle.url_prefix').'.cwd', $rootDirectory->id);
 
             // return root directory
             return $rootDirectory;

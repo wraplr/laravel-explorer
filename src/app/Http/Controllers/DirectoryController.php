@@ -10,7 +10,7 @@ use WrapLr\LaravelExplorer\App\WleDirectory;
 
 class DirectoryController extends BaseController
 {
-    public function change($id)
+    public function change($id, $request)
     {
         $currentDirectory = WleDirectory::whereId($id)->first();
 
@@ -20,8 +20,36 @@ class DirectoryController extends BaseController
             ], 400);
         }
 
-        // change directory in the session
-        Session::put('laravel-explorer.cwd', $currentDirectory->id);
+        // get current back list
+        $backList = Session::get(config('wlrle.url_prefix').'.back');
+
+        // get current forward list
+        $forwardList = Session::get(config('wlrle.url_prefix').'.forward');
+
+        // update forward and back list
+        if ($request == 'back') {
+            $forwardList[] = array_pop($backList);
+        } else {
+            if ($request == 'forward') {
+                array_pop($forwardList);
+            } else {
+                $forwardList = [];
+            }
+
+            // prevent to add the same dir again
+            if (count($backList) == 0 || $backList[count($backList) - 1] != $currentDirectory->id) {
+                $backList[] = $currentDirectory->id;
+            }
+        }
+
+        // update back list
+        Session::put(config('wlrle.url_prefix').'.back', $backList);
+
+        // update forward list
+        Session::put(config('wlrle.url_prefix').'.forward', $forwardList);
+
+        // save current working directory
+        Session::put(config('wlrle.url_prefix').'.cwd', $currentDirectory->id);
 
         // breadcrumb
         $breadcrumbDirs = $this->getBreadcrumbDirs($currentDirectory);
@@ -33,7 +61,9 @@ class DirectoryController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'parent' => ($currentDirectory->parent ? $currentDirectory->parent->id : 0),
+            'back' => (count($backList) > 1 ? $backList[count($backList) - 2] : 0),
+            'forward' => (count($forwardList) > 0 ? $forwardList[count($forwardList) - 1] : 0),
+            'up' => ($currentDirectory->parent ? $currentDirectory->parent->id : 0),
             'content' => view('laravel-explorer::items', compact('directoryList', 'fileList'))->render(),
             'breadcrumb' => view('laravel-explorer::bread', compact('breadcrumbDirs'))->render(),
             'fileInfoList' => $this->toFileInfoList($fileList),
