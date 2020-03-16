@@ -24,8 +24,8 @@
         // reference to main dialog
         this.mainDialog = null;
 
-        // actual file list
-        this.files = [];
+        // actual file info list
+        this.fileInfoList = [];
 
         // error counts
         this.errorCount = 0;
@@ -141,8 +141,11 @@
                 }
             });
 
+            // get fileInfo from id
+            var fileInfo = getFileInfo(_this, parseInt($(this).closest('.item').attr('data-id')));
+
             // call onSelected callback
-            _this.options.onSelected(toFileInfoList(_this, [parseInt($(this).closest('.item').attr('data-id'))]));
+            _this.options.onSelected(_this.options.selectMultiple ? [fileInfo] : fileInfo);
 
             // close dialog
             mainDialogRef.close();
@@ -279,18 +282,18 @@
         });
     }
 
-    function toFileInfoList(_this, files)
+    function getFileInfo(_this, fileId)
     {
-        var fileInfoList = [];
+        var fileInfoResult = null;
 
-        // search for file info in files
-        $.each(_this.files, function(i, fileInfo) {
-            if ($.inArray(fileInfo.id, files) > -1) {
-                fileInfoList.push(fileInfo);
+        // search for file info in file info list
+        $.each(_this.fileInfoList, function(i, fileInfo) {
+            if (fileInfo.id == fileId) {
+                fileInfoResult = fileInfo;
             }
         });
 
-        return fileInfoList;
+        return fileInfoResult;
     }
 
     function refresh(_this, mainDialogRef)
@@ -303,8 +306,8 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, 'refresh'),
         }).done(function(result) {
-            // update files
-            _this.files = result.files;
+            // update fileInfoList
+            _this.fileInfoList = result.fileInfoList;
 
             // update content
             $(mainDialogRef.getModalBody()).find('.content').html(result.content);
@@ -330,8 +333,8 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, 'directory/'  + directoryId + '/change/'),
         }).done(function(result) {
-            // update files
-            _this.files = result.files;
+            // update fileInfoList
+            _this.fileInfoList = result.fileInfoList;
 
             // update breadcrumb dirs
             $(mainDialogRef.getModalBody()).find('.breadcrumb').html(result.breadcrumb);
@@ -531,8 +534,8 @@
             type: 'GET',
             url: mergeUrl(_this.options.baseUrl, ''),
         }).done(function(result) {
-            // update files
-            _this.files = result.files;
+            // update fileInfoList
+            _this.fileInfoList = result.fileInfoList;
 
             // update main container
             $(mainDialogRef.getModalBody()).html(result.content);
@@ -774,8 +777,20 @@
                         });
 
                         if (files.length) {
-                            // call onSelected callback
-                            _this.options.onSelected(toFileInfoList(_this, files));
+                            if (_this.options.selectMultiple) {
+                                // convert file ids to fileInfoList
+                                var fileInfoList = [];
+
+                                $.each(files, function (i, fileId) {
+                                    fileInfoList.push(getFileInfo(_this, fileId));
+                                });
+                                
+                                // call onSelected callback
+                                _this.options.onSelected(fileInfoList);
+                            } else {
+                                // call onSelected callback with the first selected file
+                                _this.options.onSelected(getFileInfo(_this, files[0]));
+                            }
                         }
 
                         // close the dialog

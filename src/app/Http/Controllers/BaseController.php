@@ -94,7 +94,6 @@ class BaseController extends Controller
                 'name' => $file->name,
                 'url' => $file->storageUrl(),
                 'mimeType' => $file->mime_type,
-                'isImage' => $file->isImage(),
             ];
 
             // views
