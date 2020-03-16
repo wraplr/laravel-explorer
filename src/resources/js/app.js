@@ -95,12 +95,12 @@
     {
         // change directory, breadcrumb
         $(mainDialogRef.getModalBody()).find('.laravel-explorer .breadcrumb .breadcrumb-item a').on('click', function() {
-            changeDirectory(_this, mainDialogRef, $(this).attr('data-id'));
+            changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'breadcrumb');
         });
 
         // change directory, content directories
         $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .directory .square').on('dblclick', function() {
-            changeDirectory(_this, mainDialogRef, $(this).closest('.item').attr('data-id'));
+            changeDirectory(_this, mainDialogRef, $(this).closest('.item').attr('data-id'), 'change');
         });
 
         // select item(s)
@@ -323,7 +323,7 @@
         });
     }
 
-    function changeDirectory(_this, mainDialogRef, directoryId)
+    function changeDirectory(_this, mainDialogRef, directoryId, request)
     {
         // loading
         loading(_this, mainDialogRef);
@@ -331,7 +331,7 @@
         // get dir list in deeper level
         $.ajax({
             type: 'GET',
-            url: mergeUrl(_this.options.baseUrl, 'directory/'  + directoryId + '/change/'),
+            url: mergeUrl(_this.options.baseUrl, 'directory/'  + directoryId + '/change/' + request),
         }).done(function(result) {
             // update fileInfoList
             _this.fileInfoList = result.fileInfoList;
@@ -342,8 +342,14 @@
             // update content
             $(mainDialogRef.getModalBody()).find('.content').html(result.content);
 
+            // update back
+            $(mainDialogRef.getModalBody()).find('button[data-request=back]').attr('data-id', result.back).attr('disabled', !result.back);
+
+            // update forward
+            $(mainDialogRef.getModalBody()).find('button[data-request=forward]').attr('data-id', result.forward).attr('disabled', !result.forward);
+            
             // update navigation up
-            $(mainDialogRef.getModalBody()).find('button[data-request=up]').attr('data-id', result.parent).attr('disabled', !result.parent);
+            $(mainDialogRef.getModalBody()).find('button[data-request=up]').attr('data-id', result.up).attr('disabled', !result.up);
 
             // bind to change directory
             bindToItems(_this, mainDialogRef);
@@ -720,10 +726,24 @@
                 });
             });
 
+            // map navigation back button
+            $(mainDialogRef.getModalBody()).find('button[data-request=back]').on('click', function() {
+                if (parseInt($(this).attr('data-id')) > 0) {
+                    changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'back');
+                }
+            });
+
+            // map navigation forward button
+            $(mainDialogRef.getModalBody()).find('button[data-request=forward]').on('click', function() {
+                if (parseInt($(this).attr('data-id')) > 0) {
+                    changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'forward');
+                }
+            });
+
             // map navigation up button
             $(mainDialogRef.getModalBody()).find('button[data-request=up]').on('click', function() {
                 if (parseInt($(this).attr('data-id')) > 0) {
-                    changeDirectory(_this, mainDialogRef, $(this).attr('data-id'));
+                    changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'up');
                 }
             });
 

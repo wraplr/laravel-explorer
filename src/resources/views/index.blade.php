@@ -36,15 +36,15 @@
     </div>
     <div class="btn-toolbar" role="toolbar">
         <div class="btn-group mr-2" role="group">
-            <button type="button" class="btn btn-lg btn-light" title="Back">
+            <button type="button" class="btn btn-lg btn-light" title="Back" data-request="back" data-id="{{ $back }}" {{ $back == 0 ? 'disabled' : '' }}>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAu0lEQVRIS8WV4Q2CMBBGHxM4ArqJmyCTqZs4im7gBpgvoaY50rQcLfQv3Hv9epTraLy6xnx2F1yBO3B2JnsDI/AK9TaBXuid8FAmxiUlmDbCF1yb4HDBExgKUv43viaB4DegJOVqQYBr89UFMby6wMJTx29TFR/RY744ub66BQJbSfUeWEkTQSxpJggS3YXcKm5yDpR6fpzgC5y8257rPvE8sf8iDRx9lt6ZILh6lBw4Gze/LN99JldP8APn5CoZPerbGgAAAABJRU5ErkJggg=="/>
             </button>
-            <button type="button" class="btn btn-lg btn-light" title="Forward">
+            <button type="button" class="btn btn-lg btn-light" title="Forward" data-request="forward" data-id="{{ $forward }}" {{ $forward == 0 ? 'disabled' : '' }}>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAsElEQVRIS82V0Q3CMAxEXydgBMomjAKT0VE6CmzABkX3UVSljWvFGDXf8T1fbMcdyadL1ufvgCvwAPpGZ0/gDoxzfOlAF86N4nOYNC41wBQUX+mWDg4B0BurTtb5Jt7iQDG3HUgYoOwtyE8AFsQN8AzilpPjALY6ZemqVge3AwuQWuTUNk0fNM93FapBCPAGTh4F485ruU/KQdLCGQI7QeJqgOrCCSa/Dvd8BSFoOuAD980iGcUiwSkAAAAASUVORK5CYII="/>
             </button>
         </div>
         <div class="btn-group mr-2" role="group">
-            <button type="button" class="btn btn-lg btn-light" title="Up" data-request="up" data-id="{{ count($breadcrumbDirs) > 1 ? $breadcrumbDirs[count($breadcrumbDirs) - 2]->id : 0 }}" {{ count($breadcrumbDirs) == 1 ? 'disabled' : '' }}>
+            <button type="button" class="btn btn-lg btn-light" title="Up" data-request="up" data-id="{{ $up }}" {{ $up == 0 ? 'disabled' : '' }}>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAsklEQVRIS+2VwQ3CMAwArxMwAnQTRoHJgE06Ct2gGxRZSlCVEsdJSFEl8uknvrPjyu5ofLrGfDYXnIEbcCqs7AlcgcHHhxXIhWMh3IcJo48J5kr4ihtW8HPBw72v9Ek778RzKhD4xVHlq0myBUu4z1yTZAk+wVMSs0CDaxKzIGykD0z9bX8B+30i66gqbnK1YAIOVkrk3rjcJ+EskoVzr9gJApcREl04lcmvwzffyV+v4AW1cScZze7mswAAAABJRU5ErkJggg=="/>
             </button>
         </div>
