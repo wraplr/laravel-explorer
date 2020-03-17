@@ -39,7 +39,7 @@ class BaseController extends Controller
                 break;
             }
 
-            // add it to breadcrumg
+            // add it to breadcrumb
             $breadcrumbDirs[] = $directory;
 
             // set parent as current dir
@@ -47,6 +47,54 @@ class BaseController extends Controller
         }
 
         return array_reverse($breadcrumbDirs);
+    }
+
+    protected function getAllSubdirectories($directory, $subdirectories = [])
+    {
+        if ($directory->directory_id) {
+            $subdirectories[] = $directory;
+        }
+
+        foreach ($directory->subdirectories as $subdirectory) {
+            $subdirectories = $this->getAllSubdirectories($subdirectory, $subdirectories);
+        }
+
+        return $subdirectories;
+    }
+
+    protected function getPasteCount()
+    {
+        // paste count
+        $pasteCount = 0;
+
+        // get copy list
+        $copy = Session::get(config('wlrle.url_prefix').'.copy', []);
+
+        // get cut list
+        $cut = Session::get(config('wlrle.url_prefix').'.cut', []);
+
+        // directories to copy
+        if (isset($copy['directories'])) {
+            $pasteCount += count($copy['directories']);
+        }
+
+        // files to copy
+        if (isset($copy['files'])) {
+            $pasteCount += count($copy['files']);
+        }
+
+
+        // directories to cut
+        if (isset($cut['directories'])) {
+            $pasteCount += count($cut['directories']);
+        }
+
+        // files to cut
+        if (isset($cut['files'])) {
+            $pasteCount += count($cut['files']);
+        }
+
+        return $pasteCount;
     }
 
     protected function deleteFile($filePath)
@@ -111,5 +159,41 @@ class BaseController extends Controller
 
         // return file info list
         return $fileInfoList;
+    }
+
+    protected function getUniqueDirectoryName($currentDirectory, $directoryOriginalName)
+    {
+        // set it to original name by default
+        $directoryName = $directoryOriginalName;
+
+        // get all names
+        $directoryNames = $currentDirectory->subdirectories->pluck('name')->all();
+
+        // rename it, if any
+        $directoryIndex = 0;
+        while (in_array($directoryName, $directoryNames)) {
+            $directoryName = $directoryOriginalName.' ('.(++$directoryIndex).')';
+        }
+
+        // return updated or original name
+        return $directoryName;
+    }
+
+    protected function getUniqueFileName($currentDirectory, $fileOriginalName)
+    {
+        // set it to original name by default
+        $fileName = $fileOriginalName;
+
+        // get all names
+        $fileNames = $currentDirectory->files->pluck('name')->all();
+
+        // rename it, if any
+        $fileIndex = 0;
+        while (in_array($fileName, $fileNames)) {
+            $fileName = pathinfo($fileOriginalName, PATHINFO_FILENAME).' ('.(++$fileIndex).')'.(pathinfo($fileOriginalName, PATHINFO_EXTENSION) == '' ? '' : '.').pathinfo($fileOriginalName, PATHINFO_EXTENSION);
+        }
+
+        // return updated or original name
+        return $fileName;
     }
 }

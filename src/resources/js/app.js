@@ -246,38 +246,37 @@
                     renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').focus();
                 },
                 buttons: [{
-                        id: 'btn-ok',
-                        label: 'OK',
-                        cssClass: 'btn-primary',
-                        action: function(renameItemDialogRef) {
-                            // call rename
-                            if (item.hasClass('directory')) {
-                                // rename directory
-                                renameDirectory(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
-                                    // renamed
-                                    $(input).val(name);
-                                });
-                            } else if (item.hasClass('file')) {
-                                // rename file
-                                renameFile(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
-                                    // renamed
-                                    $(input).val(name);
-                                });
-                            }
+                    id: 'btn-ok',
+                    label: 'OK',
+                    cssClass: 'btn-primary',
+                    action: function(renameItemDialogRef) {
+                        // call rename
+                        if (item.hasClass('directory')) {
+                            // rename directory
+                            renameDirectory(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
+                                // renamed
+                                $(input).val(name);
+                            });
+                        } else if (item.hasClass('file')) {
+                            // rename file
+                            renameFile(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
+                                // renamed
+                                $(input).val(name);
+                            });
+                        }
 
-                            // close the dialog
-                            renameItemDialogRef.close();
-                        },
-                    }, {
-                        id: 'btn-cancel',
-                        label: 'Cancel',
-                        cssClass: 'btn-secondary',
-                        action: function(renameItemDialogRef) {
-                            // close the dialog
-                            renameItemDialogRef.close();
-                        },
+                        // close the dialog
+                        renameItemDialogRef.close();
                     },
-                ],
+                }, {
+                    id: 'btn-cancel',
+                    label: 'Cancel',
+                    cssClass: 'btn-secondary',
+                    action: function(renameItemDialogRef) {
+                        // close the dialog
+                        renameItemDialogRef.close();
+                    },
+                }],
             });
         });
     }
@@ -294,6 +293,36 @@
         });
 
         return fileInfoResult;
+    }
+
+    function getSelectedDirectories(mainDialogRef)
+    {
+        var selectedDirectories = [];
+
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
+            if ($(item).find('.square').hasClass('selected')) {
+                if ($(item).hasClass('directory')) {
+                    selectedDirectories.push(parseInt($(item).attr('data-id')));
+                }
+            }
+        });
+
+        return selectedDirectories;
+    }
+
+    function getSelectedFiles(mainDialogRef)
+    {
+        var selectedFiles = [];
+
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
+            if ($(item).find('.square').hasClass('selected')) {
+                if ($(item).hasClass('file')) {
+                    selectedFiles.push(parseInt($(item).attr('data-id')));
+                }
+            }
+        });
+
+        return selectedFiles;
     }
 
     function refresh(_this, mainDialogRef)
@@ -343,13 +372,13 @@
             $(mainDialogRef.getModalBody()).find('.content').html(result.content);
 
             // update back
-            $(mainDialogRef.getModalBody()).find('button[data-request=back]').attr('data-id', result.back).attr('disabled', !result.back);
+            $(mainDialogRef.getModalBody()).find('button[data-request=back]').attr('data-id', result.back).prop('disabled', !result.back);
 
             // update forward
-            $(mainDialogRef.getModalBody()).find('button[data-request=forward]').attr('data-id', result.forward).attr('disabled', !result.forward);
+            $(mainDialogRef.getModalBody()).find('button[data-request=forward]').attr('data-id', result.forward).prop('disabled', !result.forward);
             
             // update navigation up
-            $(mainDialogRef.getModalBody()).find('button[data-request=up]').attr('data-id', result.up).attr('disabled', !result.up);
+            $(mainDialogRef.getModalBody()).find('button[data-request=up]').attr('data-id', result.up).prop('disabled', !result.up);
 
             // bind to change directory
             bindToItems(_this, mainDialogRef);
@@ -426,50 +455,6 @@
         });
     }
 
-    function deleteDirectories(_this, mainDialogRef, directories)
-    {
-        // delete directories
-        return $.ajax({
-            type: 'POST',
-            url: mergeUrl(_this.options.baseUrl, 'directory/delete'),
-            data: {
-                _token: _this.options.csrfToken,
-                _method: 'DELETE',
-                items: directories,
-            },
-        }).done(function(result) {
-            // success, but nothing to do here
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
-        }).always(function() {
-            // done
-            loaded(_this, mainDialogRef);
-        });
-    }
-
-    function deleteFiles(_this, mainDialogRef, files)
-    {
-        // delete files
-        return $.ajax({
-            type: 'POST',
-            url: mergeUrl(_this.options.baseUrl, 'file/delete'),
-            data: {
-                _token: _this.options.csrfToken,
-                _method: 'DELETE',
-                items: files,
-            },
-        }).done(function(result) {
-            // success, but nothing to do here
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
-        }).always(function() {
-            // done
-            loaded(_this, mainDialogRef);
-        });
-    }
-
     function renameFile(_this, mainDialogRef, fileId, name, onRenamed, onFailed)
     {
         // loading
@@ -508,24 +493,111 @@
         // loading
         loading(_this, mainDialogRef);
 
-        // delete directories and/or files with promises
-        var def = $.Deferred(), requests = [];
+        // delete directories and/or files
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/delete'),
+            data: {
+                _token: _this.options.csrfToken,
+                _method: 'DELETE',
+                items: {
+                    directories: directories,
+                    files: files,
+                },
+            },
+        }).done(function(result) {
+            // success, but nothing to do here
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // refresh after delete
+            refresh(_this, mainDialogRef)
+        });
+    }
 
-        // delete directories
-        if (directories.length) {
-            requests.push(deleteDirectories(_this, mainDialogRef, directories));
-        }
+    function copyItems(_this, mainDialogRef, directories, files)
+    {
+        // loading
+        loading(_this, mainDialogRef);
 
-        // delete files
-        if (files.length) {
-            requests.push(deleteFiles(_this, mainDialogRef, files));
-        }
+        // copy directories and/or files
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/copy'),
+            data: {
+                _token: _this.options.csrfToken,
+                items: {
+                    directories: directories,
+                    files: files,
+                },
+            },
+        }).done(function(result) {
+            // success, enable/disable paste button
+            $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // done
+            loaded(_this, mainDialogRef);
 
-        $.when.apply($, requests).done(function() {
-            // resolve args
-            def.resolve(arguments);
+            // deselect all the items
+            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+        });
+    }
 
-            // and refresh after deletes
+    function cutItems(_this, mainDialogRef, directories, files)
+    {
+        // loading
+        loading(_this, mainDialogRef);
+
+        // cut directories and/or files
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/cut'),
+            data: {
+                _token: _this.options.csrfToken,
+                items: {
+                    directories: directories,
+                    files: files,
+                },
+            },
+        }).done(function(result) {
+            // success, enable/disable paste button
+            $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // done
+            loaded(_this, mainDialogRef);
+
+            // deselect all the items
+            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+        });
+    }
+
+    function pasteItems(_this, mainDialogRef)
+    {
+        // loading
+        loading(_this, mainDialogRef);
+
+        // paste directories and/or files (stored in session)
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/paste'),
+            data: {
+                _token: _this.options.csrfToken,
+            },
+        }).done(function(result) {
+            // success, enable/disable paste button
+            $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // refresh after paste
             refresh(_this, mainDialogRef)
         });
     }
@@ -546,6 +618,84 @@
             // update main container
             $(mainDialogRef.getModalBody()).html(result.content);
 
+            // map copy items button
+            $(mainDialogRef.getModalBody()).find('button[data-request=copy]').on('click', function() {
+                // get selected directories/files
+                var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
+
+                // check selected items count
+                if (!(directories.length + files.length)) {
+                    // ask the user before delete
+                    SimpleBsDialog.show({
+                        width: '500px',
+                        autoWidth: false,
+                        height: '180px',
+                        autoHeight: false,
+                        title: 'Copy',
+                        closable: true,
+                        spinner: false,
+                        closeByBackdrop: true,
+                        closeByKeyboard: true,
+                        html: 'Please select at least one file or directory!',
+                        cssClass: 'laravel-explorer input-dialog',
+                        buttons: [{
+                            id: 'btn-close',
+                            label: 'Close',
+                            cssClass: 'btn-primary',
+                            action: function(deleteItemsDialogRef) {
+                                // close the dialog
+                                deleteItemsDialogRef.close();
+                            },
+                        }],
+                    });
+                } else {
+                    // call copy items
+                    copyItems(_this, mainDialogRef, directories, files);
+                }
+            });
+
+            // map cut items button
+            $(mainDialogRef.getModalBody()).find('button[data-request=cut]').on('click', function() {
+                // get selected directories/files
+                var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
+
+                // check selected items count
+                if (!(directories.length + files.length)) {
+                    // ask the user before delete
+                    SimpleBsDialog.show({
+                        width: '500px',
+                        autoWidth: false,
+                        height: '180px',
+                        autoHeight: false,
+                        title: 'Cut',
+                        closable: true,
+                        spinner: false,
+                        closeByBackdrop: true,
+                        closeByKeyboard: true,
+                        html: 'Please select at least one file or directory!',
+                        cssClass: 'laravel-explorer input-dialog',
+                        buttons: [{
+                            id: 'btn-close',
+                            label: 'Close',
+                            cssClass: 'btn-primary',
+                            action: function(deleteItemsDialogRef) {
+                                // close the dialog
+                                deleteItemsDialogRef.close();
+                            },
+                        }],
+                    });
+                } else {
+                    // call cut items
+                    cutItems(_this, mainDialogRef, directories, files);
+                }
+            });
+
+            // map paste items button
+            $(mainDialogRef.getModalBody()).find('button[data-request=paste]').on('click', function() {
+                // call paste items
+                pasteItems(_this, mainDialogRef);
+            });
+
             // map selectall button
             $(mainDialogRef.getModalBody()).find('button[data-request=selectall]').on('click', function() {
                 $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').addClass('selected');
@@ -554,19 +704,7 @@
             // map delete items button
             $(mainDialogRef.getModalBody()).find('button[data-request=deleteitems]').on('click', function() {
                 // get selected directories/files
-                var directories = [], files = [];
-
-                $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
-                    if ($(item).find('.square').hasClass('selected')) {
-                        if ($(item).hasClass('directory')) {
-                            directories.push(parseInt($(item).attr('data-id')));
-                        }
-
-                        if ($(item).hasClass('file')) {
-                            files.push(parseInt($(item).attr('data-id')));
-                        }
-                    }
-                });
+                var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
 
                 // ask the user before delete
                 SimpleBsDialog.show({
@@ -574,7 +712,7 @@
                     autoWidth: false,
                     height: '180px',
                     autoHeight: false,
-                    title: 'New folder',
+                    title: 'Delete',
                     closable: true,
                     spinner: false,
                     closeByBackdrop: true,
@@ -588,35 +726,33 @@
                         }
                     },
                     buttons: (directories.length + files.length > 0) ? [{
-                            id: 'btn-yes',
-                            label: 'Yes',
-                            cssClass: 'btn-primary',
-                            action: function(deleteItemsDialogRef) {
-                                // call delete directories/files
-                                deleteItems(_this, mainDialogRef, directories, files);
+                        id: 'btn-yes',
+                        label: 'Yes',
+                        cssClass: 'btn-primary',
+                        action: function(deleteItemsDialogRef) {
+                            // call delete directories/files
+                            deleteItems(_this, mainDialogRef, directories, files);
 
-                                // close the dialog
-                                deleteItemsDialogRef.close();
-                            },
-                        }, {
-                            id: 'btn-cancel',
-                            label: 'Cancel',
-                            cssClass: 'btn-secondary',
-                            action: function(deleteItemsDialogRef) {
-                                // close the dialog
-                                deleteItemsDialogRef.close();
-                            },
+                            // close the dialog
+                            deleteItemsDialogRef.close();
                         },
-                    ] : [{
-                            id: 'btn-close',
-                            label: 'Close',
-                            cssClass: 'btn-primary',
-                            action: function(deleteItemsDialogRef) {
-                                // close the dialog
-                                deleteItemsDialogRef.close();
-                            },
+                    }, {
+                        id: 'btn-cancel',
+                        label: 'Cancel',
+                        cssClass: 'btn-secondary',
+                        action: function(deleteItemsDialogRef) {
+                            // close the dialog
+                            deleteItemsDialogRef.close();
                         },
-                    ],
+                    }] : [{
+                        id: 'btn-close',
+                        label: 'Close',
+                        cssClass: 'btn-primary',
+                        action: function(deleteItemsDialogRef) {
+                            // close the dialog
+                            deleteItemsDialogRef.close();
+                        },
+                    }],
                 });
             });
 
@@ -640,26 +776,25 @@
                         createDirectoryDialogRef.getModalBody().find('#laravel-explorer-folder-name').focus();
                     },
                     buttons: [{
-                            id: 'btn-ok',
-                            label: 'OK',
-                            cssClass: 'btn-primary',
-                            action: function(createDirectoryDialogRef) {
-                                // call createDirectory
-                                createDirectory(_this, mainDialogRef, createDirectoryDialogRef.getModalBody().find('#laravel-explorer-folder-name').val());
+                        id: 'btn-ok',
+                        label: 'OK',
+                        cssClass: 'btn-primary',
+                        action: function(createDirectoryDialogRef) {
+                            // call createDirectory
+                            createDirectory(_this, mainDialogRef, createDirectoryDialogRef.getModalBody().find('#laravel-explorer-folder-name').val());
 
-                                // close the dialog
-                                createDirectoryDialogRef.close();
-                            },
-                        }, {
-                            id: 'btn-cancel',
-                            label: 'Cancel',
-                            cssClass: 'btn-secondary',
-                            action: function(createDirectoryDialogRef) {
-                                // close the dialog
-                                createDirectoryDialogRef.close();
-                            },
+                            // close the dialog
+                            createDirectoryDialogRef.close();
                         },
-                    ],
+                    }, {
+                        id: 'btn-cancel',
+                        label: 'Cancel',
+                        cssClass: 'btn-secondary',
+                        action: function(createDirectoryDialogRef) {
+                            // close the dialog
+                            createDirectoryDialogRef.close();
+                        },
+                    }],
                 });
             });
 
@@ -709,20 +844,19 @@
                         });
                     },
                     buttons: [{
-                            id: 'btn-close',
-                            label: 'Close',
-                            cssClass: 'btn-primary',
-                            action: function(uploadDialogRef) {
-                                // call refresh
-                                if (uploadCount) {
-                                    refresh(_this, mainDialogRef);
-                                }
+                        id: 'btn-close',
+                        label: 'Close',
+                        cssClass: 'btn-primary',
+                        action: function(uploadDialogRef) {
+                            // call refresh
+                            if (uploadCount) {
+                                refresh(_this, mainDialogRef);
+                            }
 
-                                // close the dialog
-                                uploadDialogRef.close();
-                            },
+                            // close the dialog
+                            uploadDialogRef.close();
                         },
-                    ],
+                    }],
                 });
             });
 
@@ -783,49 +917,48 @@
             closeByKeyboard: _this.options.closeByKeyboard,
             html: '',
             buttons: [{
-                    id: 'btn-ok',
-                    label: 'OK',
-                    cssClass: 'btn-primary',
-                    action: function(mainDialogRef) {
-                        // get selected files
-                        var files = [];
+                id: 'btn-ok',
+                label: 'OK',
+                cssClass: 'btn-primary',
+                action: function(mainDialogRef) {
+                    // get selected files
+                    var files = [];
 
-                        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file').each(function(index, item) {
-                            if ($(item).find('.square').hasClass('selected')) {
-                                files.push(parseInt($(item).attr('data-id')));
-                            }
-                        });
-
-                        if (files.length) {
-                            if (_this.options.selectMultiple) {
-                                // convert file ids to fileInfoList
-                                var fileInfoList = [];
-
-                                $.each(files, function (i, fileId) {
-                                    fileInfoList.push(getFileInfo(_this, fileId));
-                                });
-                                
-                                // call onSelected callback
-                                _this.options.onSelected(fileInfoList);
-                            } else {
-                                // call onSelected callback with the first selected file
-                                _this.options.onSelected(getFileInfo(_this, files[0]));
-                            }
+                    $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file').each(function(index, item) {
+                        if ($(item).find('.square').hasClass('selected')) {
+                            files.push(parseInt($(item).attr('data-id')));
                         }
+                    });
 
-                        // close the dialog
-                        mainDialogRef.close();
-                    },
-                }, {
-                    id: 'btn-cancel',
-                    label: 'Cancel',
-                    cssClass: 'btn-secondary',
-                    action: function(mainDialogRef) {
-                        // close the dialog
-                        mainDialogRef.close();
-                    },
+                    if (files.length) {
+                        if (_this.options.selectMultiple) {
+                            // convert file ids to fileInfoList
+                            var fileInfoList = [];
+
+                            $.each(files, function (i, fileId) {
+                                fileInfoList.push(getFileInfo(_this, fileId));
+                            });
+                            
+                            // call onSelected callback
+                            _this.options.onSelected(fileInfoList);
+                        } else {
+                            // call onSelected callback with the first selected file
+                            _this.options.onSelected(getFileInfo(_this, files[0]));
+                        }
+                    }
+
+                    // close the dialog
+                    mainDialogRef.close();
                 },
-            ],
+            }, {
+                id: 'btn-cancel',
+                label: 'Cancel',
+                cssClass: 'btn-secondary',
+                action: function(mainDialogRef) {
+                    // close the dialog
+                    mainDialogRef.close();
+                },
+            }],
             onShow: function(mainDialogRef) {
                 // disable buttons
                 mainDialogRef.getButtons().prop('disabled', true);

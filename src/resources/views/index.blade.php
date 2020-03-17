@@ -2,13 +2,13 @@
     <div class="errors"></div>
     <div class="btn-toolbar mb-1" role="toolbar">
         <div class="btn-group mr-2" role="group">
-            <button type="button" class="btn btn-lg btn-light" title="Copy">
+            <button type="button" class="btn btn-lg btn-light" title="Copy" data-request="copy">
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAy0lEQVRIS82V0RHCMAxDXydgBGASOgpMVkZhE+gG3QDOvYYLISEKaQ76W9myZNXtaPx0jfujEPTAAOzEYW7ACbgYXiGwgq3Y3MGsZq8S3AubO/g8vKKgOUFOgO3mDBwCoKwgR2DvjeSaI6hKCxBa+aagKi0KQdUy/5IgFeGo198oaE6gxNP/WH1lo7td/pRrLdmaH2PHLuVtqETFzXWfFJTuIGrpmhb9nmACNmp0FtwzLak63yI7dnZ21b/XS1oUgsLhNbjyR9M6JVAPxH0sGR7UMH0AAAAASUVORK5CYII="/>
             </button>
-            <button type="button" class="btn btn-lg btn-light" title="Cut">
+            <button type="button" class="btn btn-lg btn-light" title="Cut" data-request="cut">
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABfklEQVRIS8WVPy9EURDFf/sJqLQ6LT4BCj2JToFEpUFCIQorUSipFCJUWhqNBuEDEJ1KotIpdeQkc2XcvW/fLF5M8pK39745Z8782xYNW6thfP6FYApYBsaBa2AfOP+p0lyBwM8KYNM1JOvAGjBgvhvArt5zgntgGNgG2vZsATemqCRkB9h0F0vAQfqdE3zYhT8vnSX/ReDQgc8Cpz6KKgWKPqmQggdgJAt/Eri0s3dgBrjIJUZroEKvOOch4NZy/mrgd6X8ldpUhRbYmEUuP9VlATgxECmUsicDf6zqssgcKDVq1z5gD1h1JEfAS7cWjhDI35NIhdSELErQD1y5QotESt7qWCIEHlzdpHrINDMTdSRVRU6r4tkAlCKBa32oCY6jJNE2TeApJfOORGdSIkUdFl0Vch7NvEMkv10ValulUyYl6q5vmze6KrotO3XUnFPnB7Jjm1ata+VYw1Zlmnw9g/bBF0ndqlDkSsOf/eHUzU3P95FB6xnUOzRO8AnP6lYZ5nszmgAAAABJRU5ErkJggg=="/>
             </button>
-            <button type="button" class="btn btn-lg btn-light" title="Paste">
+            <button type="button" class="btn btn-lg btn-light" title="Paste" data-request="paste" {{ $paste == 0 ? 'disabled' : '' }}>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA00lEQVRIS+2VMRYBQQyGvz2BI6CjUuscQ0nnVpSOQadVUTqCG/DimX3PmEiydium3eT//mSSnYqOT9WxPhZgBqyBgWLkAiyBnWbUAohA36hSYoZegOZYM3LLhN8qyhM1x16A8F4qyhNzR01noNb9HcAeWDz7G2qbt0UyhnJ54eMFpLgJsAVGH0hnYA4cJSYKOBniiSuQcRNAZIwf5qMV/AFoLUit/LpFV6BXGMHWAPK73hTegNYA1qZ69+AATEtjagE8myziK22TLUD4u/UmhwXzhDtKvi4Z6y6UXQAAAABJRU5ErkJggg=="/>
             </button>
         </div>

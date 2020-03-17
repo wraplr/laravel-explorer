@@ -30,6 +30,9 @@ class ExplorerController extends BaseController
             Session::put(config('wlrle.url_prefix').'.forward', []);
         }
 
+        // paste count to enable/disable paste button
+        $paste = $this->getPasteCount();
+
         // breadcrumb dirs
         $breadcrumbDirs = $this->getBreadcrumbDirs($currentDirectory);
 
@@ -55,7 +58,7 @@ class ExplorerController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'content' => view('laravel-explorer::index', compact('back', 'forward', 'up', 'breadcrumbDirs', 'directoryList', 'fileList'))->render(),
+            'content' => view('laravel-explorer::index', compact('paste', 'back', 'forward', 'up', 'breadcrumbDirs', 'directoryList', 'fileList'))->render(),
             'fileInfoList' => $this->toFileInfoList($fileList),
         ], 200);
     }

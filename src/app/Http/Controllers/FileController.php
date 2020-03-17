@@ -2,6 +2,7 @@
 
 namespace WrapLr\LaravelExplorer\App\Http\Controllers;
 
+use Session;
 use Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -49,16 +50,7 @@ class FileController extends BaseController
         $file = $request->file('file');
 
         // check for unique name
-        $fileName = $file->getClientOriginalName();
-
-        // get all names
-        $fileNames = $currentDirectory->files->pluck('name')->all();
-
-        // rename it, if any
-        $fileIndex = 0;
-        while (in_array($fileName, $fileNames)) {
-            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).' ('.(++$fileIndex).')'.(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION) == '' ? '' : '.').pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
-        }
+        $fileName = $this->getUniqueFileName($currentDirectory, $file->getClientOriginalName());
 
         // create model
         $wleFile = new WleFile([
@@ -73,14 +65,17 @@ class FileController extends BaseController
             // create new file in database
             $currentDirectory->files()->save($wleFile);
 
+            // new phisical name
+            $storageName = base_convert($wleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension();
+
             // move file to path
-            if (!$file->move($full, base_convert($wleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension())) {
+            if (!$file->move($full, $storageName)) {
                 // move error
                 $wleFile->delete();
 
                 // return server error
                 return response()->json([
-                    'message' => 'Server error (can not move the file from temp folder)!',
+                    'message' => 'Server error (can not move the file from temp folder to '.$full.'/'.$storageName.')!',
                 ], 400);
             }
         } else {
@@ -152,40 +147,5 @@ class FileController extends BaseController
         return response()->json([
             'name' => $file->name,
         ], 200);
-    }
-
-    public function delete(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'items' => 'required|array|min:1',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => $validator->errors(),
-            ], 400);
-        }
-
-        // delete files
-        foreach ($request->items as $fileId) {
-            // get selected file
-            $file = WleFile::whereId($fileId)->first();
-
-            if ($file) {
-                // delete file from storage
-                $this->deleteFile($file->storagePath());
-
-                // delete file's all views
-                foreach (config('wlrle.image_views') as $viewName => $viewTrans) {
-                    $this->deleteFile($file->viewPath($viewName));
-                }
-
-                // remove file from database
-                $file->delete();
-            }
-        }
-
-        // success
-        return response()->json([], 200);
     }
 }
