@@ -20,6 +20,7 @@ Route::group(['prefix' => config('wlrle.url_prefix'), 'middleware' => config('wl
         Route::post('/cut', 'ItemController@cut');
         Route::post('/paste', 'ItemController@paste');
         Route::delete('/delete', 'ItemController@delete');
+        Route::patch('/rename', 'ItemController@rename');
     });
 
     Route::group(['prefix' => 'view'], function () {

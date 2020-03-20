@@ -17,6 +17,7 @@ class ItemController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
+            'items.*' => 'required|array|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -46,6 +47,7 @@ class ItemController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
+            'items.*' => 'required|array|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -279,6 +281,7 @@ class ItemController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
+            'items.*' => 'required|array|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -337,6 +340,89 @@ class ItemController extends BaseController
                     $file->delete();
                 }
             }
+        }
+
+        return response()->json([], 200);
+    }
+
+    // bulk rename
+    public function rename(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'items' => 'required|array|min:1',
+            'items.*' => 'required|array|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $currentDirectory = $this->getCurrentWorkingDirectory();
+
+        if (!$currentDirectory) {
+            return response()->json([
+                'message' => 'Wrong current working directory!',
+            ], 400);
+        }
+
+        // error handling
+        $errors = [];
+
+        // rename directories, if any
+        if (isset($request->items['directories'])) {
+            foreach ($request->items['directories'] as $directoryId => $directoryName) {
+                // get selected directory
+                $directory = WleDirectory::whereId($directoryId)->first();
+
+                if ($directory) {
+                    // get all subdirectory names
+                    $subdirectories = $currentDirectory->subdirectories->where('id', '!=', $directory->id)->pluck('name')->all();
+
+                    if ($directoryName != "" && !in_array($directoryName, $subdirectories)) {
+                        // set the new name
+                        $directory->name = $directoryName;
+
+                        // save it
+                        $directory->save();
+                    } else {
+                        // add error
+                        $errors[] = 'Could not rename directory from '.$directory->name.' to '.$directoryName;
+                    }
+                }
+            }
+        }
+
+        // rename files, if any
+        if (isset($request->items['files'])) {
+            foreach ($request->items['files'] as $fileId => $fileName) {
+                // get selected file
+                $file = WleFile::whereId($fileId)->first();
+
+                if ($file) {
+                    // get all file names
+                    $files = $currentDirectory->files->where('id', '!=', $file->id)->pluck('name')->all();
+
+                    if ($fileName != "" && !in_array($fileName, $files)) {
+                        // set the new name
+                        $file->name = $fileName;
+
+                        // save it
+                        $file->save();
+                    } else {
+                        // add error
+                        $errors[] = 'Could not rename file from '.$file->name.' to '.$fileName;
+                    }
+                }
+            }
+        }
+
+        // any error?
+        if (count($errors)) {
+            return response()->json([
+                'message' => $errors,
+            ], 400);
         }
 
         return response()->json([], 200);

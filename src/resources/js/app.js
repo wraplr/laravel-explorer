@@ -56,8 +56,8 @@
         // stop spinner, enable cancel button
         mainDialogRef.set('spinner', false).getButton('btn-cancel').prop('disabled', false);
 
-        // enable ok button if selections are ok
-        enableOkButton(_this, mainDialogRef);
+        // enable buttons on item(s) selected
+        enableButtons(_this, mainDialogRef);
     }
 
     function fail(_this, mainDialogRef, messages)
@@ -82,12 +82,21 @@
         });
     }
 
-    function enableOkButton(_this, mainDialogRef)
+    function enableButtons(_this, mainDialogRef)
     {
-        // selected file count
-        var selectedFileCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .file .square.selected').length;
+        // selected directory count
+        var selectedDirectoryCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory .square.selected').length;
 
-        // enable ok button
+        // selected file count
+        var selectedFileCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file .square.selected').length;
+
+        // disable/enable delete button
+        $(mainDialogRef.getModalBody()).find('button[data-request=deleteitems]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+
+        // disable/enable edit button
+        $(mainDialogRef.getModalBody()).find('button[data-request=edititems]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+
+        // disable/enable ok button
         mainDialogRef.getButton('btn-ok').prop('disabled', !selectedFileCount || (!_this.options.selectMultiple && selectedFileCount > 1));
     }
 
@@ -99,7 +108,7 @@
         });
 
         // change directory, content directories
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .directory .square').on('dblclick', function() {
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory .square').on('dblclick', function() {
             changeDirectory(_this, mainDialogRef, $(this).closest('.item').attr('data-id'), 'change');
         });
 
@@ -115,7 +124,7 @@
                 $(this).addClass('selected');
             }
 
-            enableOkButton(_this, mainDialogRef);
+            enableButtons(_this, mainDialogRef);
         });
 
         // deselect item(s)
@@ -126,11 +135,11 @@
                 $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
             }
 
-            enableOkButton(_this, mainDialogRef);
+            enableButtons(_this, mainDialogRef);
         });
 
         // choose file
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .file .square').on('dblclick', function() {
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file .square').on('dblclick', function() {
             // store selected item
             var selectedSquare = this;
 
@@ -442,6 +451,11 @@
                 onRenamed(result.name);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
+            // call renamed callback
+            if ($.isFunction(onRenamed)) {
+                onRenamed(jqXHR.responseJSON.name);
+            }
+
             // call failed callback
             if ($.isFunction(onFailed)) {
                 onFailed();
@@ -475,6 +489,11 @@
                 onRenamed(result.name);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
+            // call renamed callback
+            if ($.isFunction(onRenamed)) {
+                onRenamed(jqXHR.responseJSON.name);
+            }
+
             // call failed callback
             if ($.isFunction(onFailed)) {
                 onFailed();
@@ -485,34 +504,6 @@
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
-        });
-    }
-
-    function deleteItems(_this, mainDialogRef, directories, files)
-    {
-        // loading
-        loading(_this, mainDialogRef);
-
-        // delete directories and/or files
-        return $.ajax({
-            type: 'POST',
-            url: mergeUrl(_this.options.baseUrl, 'item/delete'),
-            data: {
-                _token: _this.options.csrfToken,
-                _method: 'DELETE',
-                items: {
-                    directories: directories,
-                    files: files,
-                },
-            },
-        }).done(function(result) {
-            // success, but nothing to do here
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
-        }).always(function() {
-            // refresh after delete
-            refresh(_this, mainDialogRef)
         });
     }
 
@@ -602,6 +593,62 @@
         });
     }
 
+    function deleteItems(_this, mainDialogRef, directories, files)
+    {
+        // loading
+        loading(_this, mainDialogRef);
+
+        // delete directories and/or files
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/delete'),
+            data: {
+                _token: _this.options.csrfToken,
+                _method: 'DELETE',
+                items: {
+                    directories: directories,
+                    files: files,
+                },
+            },
+        }).done(function(result) {
+            // success, but nothing to do here
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // refresh after delete
+            refresh(_this, mainDialogRef)
+        });
+    }
+
+    function renameItems(_this, mainDialogRef, directoryNames, fileNames)
+    {
+        // loading
+        loading(_this, mainDialogRef);
+
+        // rename directories and/or files
+        return $.ajax({
+            type: 'POST',
+            url: mergeUrl(_this.options.baseUrl, 'item/rename'),
+            data: {
+                _token: _this.options.csrfToken,
+                _method: 'PATCH',
+                items: {
+                    directories: directoryNames,
+                    files: fileNames,
+                },
+            },
+        }).done(function(result) {
+            // success, but nothing to do here
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // no success
+            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+        }).always(function() {
+            // refresh after rename
+            refresh(_this, mainDialogRef)
+        });
+    }
+
     function show(_this, mainDialogRef)
     {
         // loading
@@ -642,9 +689,9 @@
                             id: 'btn-close',
                             label: 'Close',
                             cssClass: 'btn-primary',
-                            action: function(deleteItemsDialogRef) {
+                            action: function(copyItemsDialogRef) {
                                 // close the dialog
-                                deleteItemsDialogRef.close();
+                                copyItemsDialogRef.close();
                             },
                         }],
                     });
@@ -678,9 +725,9 @@
                             id: 'btn-close',
                             label: 'Close',
                             cssClass: 'btn-primary',
-                            action: function(deleteItemsDialogRef) {
+                            action: function(cutItemsDialogRef) {
                                 // close the dialog
-                                deleteItemsDialogRef.close();
+                                cutItemsDialogRef.close();
                             },
                         }],
                     });
@@ -751,6 +798,88 @@
                         action: function(deleteItemsDialogRef) {
                             // close the dialog
                             deleteItemsDialogRef.close();
+                        },
+                    }],
+                });
+            });
+
+            // map edit items button
+            $(mainDialogRef.getModalBody()).find('button[data-request=edititems]').on('click', function() {
+                // get selected directories/files
+                var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
+
+                // ask the user before delete
+                SimpleBsDialog.show({
+                    width: '500px',
+                    autoWidth: false,
+                    height: '180px',
+                    autoHeight: false,
+                    title: 'Rename',
+                    closable: true,
+                    spinner: false,
+                    closeByBackdrop: true,
+                    closeByKeyboard: true,
+                    cssClass: 'laravel-explorer input-dialog',
+                    onShow: function(editItemsDialogRef) {
+                        if (directories.length + files.length > 0) {
+                            // html for inputs
+                            var html = '';
+
+                            // create inputs for directories
+                            $.each(directories, function(i, directoryId) {
+                                html += '<div class="form-group row"><label for="laravel-explorer-directory-name-' + directoryId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-directory-name-' + directoryId + '" data-id="' + directoryId + '" value="' + $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory[data-id=' + directoryId + '] input').val() + '" /></div></div>'
+                            });
+
+                            // create inputs for files
+                            $.each(files, function(i, fileId) {
+                                html += '<div class="form-group row"><label for="laravel-explorer-file-name-' + fileId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-file-name-' + fileId + '" data-id="' + fileId + '" value="' + $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file[data-id=' + fileId + '] input').val() + '" /></div></div>'
+                            });
+
+                            // update html
+                            editItemsDialogRef.getModalBody().html(html);
+                        } else {
+                            editItemsDialogRef.getModalBody().html('Please select at least one file or directory!');
+                        }
+                    },
+                    buttons: (directories.length + files.length > 0) ? [{
+                        id: 'btn-ok',
+                        label: 'OK',
+                        cssClass: 'btn-primary',
+                        action: function(editItemsDialogRef) {
+                            // get updatable names
+                            var directoryNames = {}, fileNames = {};
+
+                            // directory names
+                            editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-directory-name-').each(function() {
+                                directoryNames[$(this).attr('data-id')] = $(this).val();
+                            });
+
+                            // file names
+                            editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-file-name-').each(function() {
+                                fileNames[$(this).attr('data-id')] = $(this).val();
+                            });
+
+                            // call delete directories/files
+                            renameItems(_this, mainDialogRef, directoryNames, fileNames);
+
+                            // close the dialog
+                            editItemsDialogRef.close();
+                        },
+                    }, {
+                        id: 'btn-cancel',
+                        label: 'Cancel',
+                        cssClass: 'btn-secondary',
+                        action: function(editItemsDialogRef) {
+                            // close the dialog
+                            editItemsDialogRef.close();
+                        },
+                    }] : [{
+                        id: 'btn-close',
+                        label: 'Close',
+                        cssClass: 'btn-primary',
+                        action: function(editItemsDialogRef) {
+                            // close the dialog
+                            editItemsDialogRef.close();
                         },
                     }],
                 });

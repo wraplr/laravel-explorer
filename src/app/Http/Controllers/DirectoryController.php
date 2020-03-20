@@ -156,13 +156,14 @@ class DirectoryController extends BaseController
         }
 
         // get all names
-        $subdirectories = $currentDirectory->subdirectories->pluck('name')->all();
+        $subdirectories = $currentDirectory->subdirectories->where('id', '!=', $directory->id)->pluck('name')->all();
 
         // name already exists (even if it's own name)
         if (in_array($request->name, $subdirectories)) {
             return response()->json([
                 'name' => $directory->name,
-            ], 200);
+                'message' => 'Could not rename directory from '.$directory->name.' to '.$request->name,
+            ], 400);
         }
 
         // set name
