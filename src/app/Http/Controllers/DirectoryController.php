@@ -42,6 +42,11 @@ class DirectoryController extends BaseController
             }
         }
 
+        // maximize back history count in 10 items
+        while (count($backList) > 10) {
+            array_shift($backList);
+        }
+
         // update back list
         Session::put(config('wlrle.url_prefix').'.back', $backList);
 
