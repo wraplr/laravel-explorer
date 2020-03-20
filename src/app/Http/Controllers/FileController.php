@@ -128,13 +128,14 @@ class FileController extends BaseController
         }
 
         // get all names
-        $files = $currentDirectory->files->pluck('name')->all();
+        $files = $currentDirectory->files->where('id', '!=', $file->id)->pluck('name')->all();
 
         // name already exists (even if it's own name)
         if (in_array($request->name, $files)) {
             return response()->json([
                 'name' => $file->name,
-            ], 200);
+                'message' => 'Could not rename file from '.$file->name.' to '.$request->name,
+            ], 400);
         }
 
         // set name
