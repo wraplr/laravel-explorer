@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\WleFile;
+use WrapLr\LaravelExplorer\App\WlrleFile;
 
 class FileController extends BaseController
 {
@@ -53,7 +53,7 @@ class FileController extends BaseController
         $fileName = $this->getUniqueFileName($currentDirectory, $file->getClientOriginalName());
 
         // create model
-        $wleFile = new WleFile([
+        $wlrleFile = new WlrleFile([
             'name' => $fileName,
             'mime_type' => mime_content_type($file->getPathName()),
             'path' => $path,
@@ -61,17 +61,17 @@ class FileController extends BaseController
             'size' => $file->getSize(),
         ]);
 
-        if (in_array($wleFile->mime_type, config('wlrle.valid_file_mime_types'))) {
+        if (in_array($wlrleFile->mime_type, config('wlrle.valid_file_mime_types'))) {
             // create new file in database
-            $currentDirectory->files()->save($wleFile);
+            $currentDirectory->files()->save($wlrleFile);
 
             // new phisical name
-            $storageName = base_convert($wleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension();
+            $storageName = base_convert($wlrleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension();
 
             // move file to path
             if (!$file->move($full, $storageName)) {
                 // move error
-                $wleFile->delete();
+                $wlrleFile->delete();
 
                 // return server error
                 return response()->json([
@@ -90,7 +90,7 @@ class FileController extends BaseController
 
             // return invalid mim type error
             return response()->json([
-                'message' => 'Invalid mime type (<strong>'.$file->getClientOriginalName().'</strong>: '.$wleFile->mime_type.')!',
+                'message' => 'Invalid mime type (<strong>'.$file->getClientOriginalName().'</strong>: '.$wlrleFile->mime_type.')!',
             ], 400);
         }
 
@@ -119,7 +119,7 @@ class FileController extends BaseController
         }
 
         // get change directory
-        $file = WleFile::whereId($id)->first();
+        $file = WlrleFile::whereId($id)->first();
 
         if (!$file) {
             return response()->json([

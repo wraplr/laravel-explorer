@@ -5,18 +5,18 @@ namespace WrapLr\LaravelExplorer\App\Http\Controllers;
 use Session;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
-use WrapLr\LaravelExplorer\App\WleDirectory;
-use WrapLr\LaravelExplorer\App\WleFile;
+use WrapLr\LaravelExplorer\App\WlrleDirectory;
+use WrapLr\LaravelExplorer\App\WlrleFile;
 
 class BaseController extends Controller
 {
     protected function getCurrentWorkingDirectory()
     {
-        $currentDirectory = WleDirectory::whereId(Session::get(config('wlrle.url_prefix').'.cwd'))->first();
+        $currentDirectory = WlrleDirectory::whereId(Session::get(config('wlrle.url_prefix').'.cwd'))->first();
 
         if (!$currentDirectory) {
             // get root
-            $rootDirectory = WleDirectory::whereDirectoryId(null)->whereName('')->first();
+            $rootDirectory = WlrleDirectory::whereDirectoryId(null)->whereName('')->first();
 
             // it can't be null
             Session::put(config('wlrle.url_prefix').'.cwd', $rootDirectory->id);

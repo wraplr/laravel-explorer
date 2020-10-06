@@ -5,7 +5,7 @@ namespace WrapLr\LaravelExplorer\App\Http\Controllers;
 use Redirect;
 use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
 use WrapLr\LaravelExplorer\App\Http\Helpers\Image;
-use WrapLr\LaravelExplorer\App\WleFile;
+use WrapLr\LaravelExplorer\App\WlrleFile;
 
 class ViewController extends BaseController
 {
@@ -15,7 +15,7 @@ class ViewController extends BaseController
         $fileId = base_convert(pathinfo($fileName, PATHINFO_FILENAME), 36, 10);
 
         // get file
-        $file = WleFile::whereId($fileId)->first();
+        $file = WlrleFile::whereId($fileId)->first();
 
         // no db entry?
         if (!$file) {

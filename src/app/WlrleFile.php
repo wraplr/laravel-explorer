@@ -6,7 +6,7 @@ use Storage;
 use Illuminate\Database\Eloquent\Model;
 use WrapLr\LaravelExplorer\App\Http\Helpers\Image;
 
-class WleFile extends Model
+class WlrleFile extends Model
 {
     protected $fillable = [
         'name',
