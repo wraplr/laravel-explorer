@@ -6,13 +6,13 @@ use Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\WleDirectory;
+use WrapLr\LaravelExplorer\App\WlrleDirectory;
 
 class DirectoryController extends BaseController
 {
     public function change($id, $request)
     {
-        $currentDirectory = WleDirectory::whereId($id)->first();
+        $currentDirectory = WlrleDirectory::whereId($id)->first();
 
         if (!$currentDirectory) {
             return response()->json([
@@ -108,7 +108,7 @@ class DirectoryController extends BaseController
         }
 
         // create new directory
-        $currentDirectory->subdirectories()->save(new WleDirectory([
+        $currentDirectory->subdirectories()->save(new WlrleDirectory([
             'name' => $directoryName,
         ]));
 
@@ -147,7 +147,7 @@ class DirectoryController extends BaseController
         }
 
         // get directory to change
-        $directory = WleDirectory::whereId($id)->first();
+        $directory = WlrleDirectory::whereId($id)->first();
 
         if (!$directory) {
             return response()->json([

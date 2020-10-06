@@ -4,8 +4,8 @@ namespace WrapLr\LaravelExplorer\App\Http\Controllers;
 
 use Session;
 use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\WleDirectory;
-use WrapLr\LaravelExplorer\App\WleFile;
+use WrapLr\LaravelExplorer\App\WlrleDirectory;
+use WrapLr\LaravelExplorer\App\WlrleFile;
 
 class ExplorerController extends BaseController
 {

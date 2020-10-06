@@ -1,10 +1,11 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWleFilesTable extends Migration
+class CreateWlrleDirectoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +14,21 @@ class CreateWleFilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('wle_files', function (Blueprint $table) {
+        Schema::create('wlrle_directories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->string('mime_type');
-            $table->string('path');
-            $table->string('extension');
-            $table->integer('size');
             $table->unsignedBigInteger('directory_id')->nullable();
-            $table->foreign('directory_id')->references('id')->on('wle_directories')->onDelete('cascade');
+            $table->foreign('directory_id')->references('id')->on('wlrle_directories')->onDelete('cascade');
             $table->timestamps();
         });
+
+        // insert root element
+        DB::table('wlrle_directories')->insert([
+            'name' => '',
+            'directory_id' => null,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
     }
 
     /**
@@ -33,6 +38,6 @@ class CreateWleFilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wle_files');
+        Schema::dropIfExists('wlrle_directories');
     }
 }

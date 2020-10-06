@@ -4,7 +4,7 @@ namespace WrapLr\LaravelExplorer\App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class WleDirectory extends Model
+class WlrleDirectory extends Model
 {
     protected $fillable = [
         'name',
@@ -17,7 +17,7 @@ class WleDirectory extends Model
 
     public function files()
     {
-        return $this->hasMany('WrapLr\LaravelExplorer\App\WleFile', 'directory_id')->orderBy('name', 'asc');
+        return $this->hasMany('WrapLr\LaravelExplorer\App\WlrleFile', 'directory_id')->orderBy('name', 'asc');
     }
 
     public function parent()

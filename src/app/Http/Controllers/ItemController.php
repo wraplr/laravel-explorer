@@ -8,8 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\WleDirectory;
-use WrapLr\LaravelExplorer\App\WleFile;
+use WrapLr\LaravelExplorer\App\WlrleDirectory;
+use WrapLr\LaravelExplorer\App\WlrleFile;
 
 class ItemController extends BaseController
 {
@@ -107,19 +107,19 @@ class ItemController extends BaseController
             // copy directories
             foreach ($copy['directories'] as $directoryId) {
                 // get selected directory
-                $directory = WleDirectory::whereId($directoryId)->first();
+                $directory = WlrleDirectory::whereId($directoryId)->first();
 
                 // get breadcrumb id's
                 $breadcrumbIds = array_slice(array_column($this->getBreadcrumbDirs($currentDirectory), 'id'), 1);
 
                 if ($directory && !in_array($directory->id, $breadcrumbIds)) {
                     // create model
-                    $wleDirectory = new WleDirectory([
+                    $wlrleDirectory = new WlrleDirectory([
                         'name' => $this->getUniqueDirectoryName($currentDirectory, $directory->name),
                     ]);
 
                     // create new directory in database
-                    $currentDirectory->subdirectories()->save($wleDirectory);
+                    $currentDirectory->subdirectories()->save($wlrleDirectory);
 
                     // copy files (note that we don't copy sudirectories)
                     foreach ($directory->files as $file) {
@@ -127,8 +127,8 @@ class ItemController extends BaseController
                         $path = Carbon::now()->format('Y/m/d');
 
                         // create model
-                        $wleFile = new WleFile([
-                            'name' => $this->getUniqueFileName($wleDirectory, $file->name),
+                        $wlrleFile = new WlrleFile([
+                            'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
                             'mime_type' => $file->mime_type,
                             'path' => $path,
                             'extension' => $file->extension,
@@ -136,7 +136,7 @@ class ItemController extends BaseController
                         ]);
 
                         // create new file in database
-                        $wleDirectory->files()->save($wleFile);
+                        $wlrleDirectory->files()->save($wlrleFile);
 
                         // new phisical full path
                         $full = $base.'/'.$path;
@@ -147,12 +147,12 @@ class ItemController extends BaseController
                         }
 
                         // new storage path
-                        $storagePath = $full.'/'.base_convert($wleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
+                        $storagePath = $full.'/'.base_convert($wlrleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
 
                         // copy file phisically
                         if (!@copy($file->storagePath(), $storagePath)) {
                             // copy error
-                            $wleFile->delete();
+                            $wlrleFile->delete();
 
                             // add error
                             $errors[] = 'Could not copy file from '.$file->storagePath().' to '.$storagePath;
@@ -170,14 +170,14 @@ class ItemController extends BaseController
             // copy files
             foreach ($copy['files'] as $fileId) {
                 // get selected file
-                $file = WleFile::whereId($fileId)->first();
+                $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file) {
                     // phisical path, relative to base_directory/upload_directory
                     $path = Carbon::now()->format('Y/m/d');
 
                     // create model
-                    $wleFile = new WleFile([
+                    $wlrleFile = new WlrleFile([
                         'name' => $this->getUniqueFileName($currentDirectory, $file->name),
                         'mime_type' => $file->mime_type,
                         'path' => $path,
@@ -186,7 +186,7 @@ class ItemController extends BaseController
                     ]);
 
                     // create new file in database
-                    $currentDirectory->files()->save($wleFile);
+                    $currentDirectory->files()->save($wlrleFile);
 
                     // new phisical full path
                     $full = $base.'/'.$path;
@@ -197,12 +197,12 @@ class ItemController extends BaseController
                     }
 
                     // new storage path
-                    $storagePath = $full.'/'.base_convert($wleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
+                    $storagePath = $full.'/'.base_convert($wlrleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
 
                     // copy file phisically
                     if (!@copy($file->storagePath(), $storagePath)) {
                         // copy error
-                        $wleFile->delete();
+                        $wlrleFile->delete();
 
                         // add error
                         $errors[] = 'Could not copy file from '.$file->storagePath().' to '.$storagePath;
@@ -216,7 +216,7 @@ class ItemController extends BaseController
             // move directories
             foreach ($cut['directories'] as $directoryId) {
                 // get selected directory
-                $directory = WleDirectory::whereId($directoryId)->first();
+                $directory = WlrleDirectory::whereId($directoryId)->first();
 
                 // get breadcrumb id's
                 $breadcrumbIds = array_column($this->getBreadcrumbDirs($currentDirectory), 'id');
@@ -240,7 +240,7 @@ class ItemController extends BaseController
             // move files
             foreach ($cut['files'] as $fileId) {
                 // get selected file
-                $file = WleFile::whereId($fileId)->first();
+                $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file && $file->directory_id != $currentDirectory->id) {
                     // set parent
@@ -294,7 +294,7 @@ class ItemController extends BaseController
         if (isset($request->items['directories'])) {
             foreach ($request->items['directories'] as $directoryId) {
                 // get selected directory
-                $directory = WleDirectory::whereId($directoryId)->first();
+                $directory = WlrleDirectory::whereId($directoryId)->first();
 
                 // delete all files
                 if ($directory) {
@@ -325,7 +325,7 @@ class ItemController extends BaseController
         if (isset($request->items['files'])) {
             foreach ($request->items['files'] as $fileId) {
                 // get selected file
-                $file = WleFile::whereId($fileId)->first();
+                $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file) {
                     // delete file from storage
@@ -374,7 +374,7 @@ class ItemController extends BaseController
         if (isset($request->items['directories'])) {
             foreach ($request->items['directories'] as $directoryId => $directoryName) {
                 // get selected directory
-                $directory = WleDirectory::whereId($directoryId)->first();
+                $directory = WlrleDirectory::whereId($directoryId)->first();
 
                 if ($directory) {
                     // get all subdirectory names
@@ -398,7 +398,7 @@ class ItemController extends BaseController
         if (isset($request->items['files'])) {
             foreach ($request->items['files'] as $fileId => $fileName) {
                 // get selected file
-                $file = WleFile::whereId($fileId)->first();
+                $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file) {
                     // get all file names
