@@ -18,10 +18,10 @@
             </button>
         </div>
         <div class="btn-group mr-2" role="group">
-            <button type="button" class="btn btn-lg btn-light" title="Delete selected" data-request="deleteitems" disabled>
+            <button type="button" class="btn btn-lg btn-light" title="Delete selected" data-request="delete" disabled>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAA9UlEQVRIS9WV4RHBQBCFPxXQATqgAypBB1pRAZ3QASXQARUwbyZrblYu7i6TGPmXy937dt9ubgd0/Aw61qd3wALYA5PCzK7ABjjZeZ+BNowLxe2YNKYxwLOl+Ieuz+BngAcwdNnVrRVloKJdqsIZROJqiFnVFN7ZtzPfLLoDywogMesOiQuqtSMwcoRkgM55iNaaxPU9C+Aheo9FXlQDHTLPFbkBZJcvfBEgFFfkoUUxSJZFc+e5AGHhzzU/ZxbgAOxct1jht8CqLaDk9sjK4L8A8jbWeqmZ3MJ54q8KXQEqaulMkPi6aeCkRpm8r/eZnBxZ6sYXQ2M5GXlMmTMAAAAASUVORK5CYII="/>
             </button>
-            <button type="button" class="btn btn-lg btn-light" title="Edit" data-request="edititems" disabled>
+            <button type="button" class="btn btn-lg btn-light" title="Edit" data-request="edit" disabled>
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABAUlEQVRIS+WVuw3CMBBAXyZASPQwAqKhZQAqJoCGKZCAghGoYQh6KKFBjAAVLT0F6KQ4OjlxYsekIl2k83u+T3IJDT9Jw3x+KVgBb2CjL20LRsAO6FVkNgP2Kkbgy/R9oSW24A50A+FD4AB01LlMYgs+aZBv6QbAFbAla0CyyvUgRCCAOTC2JFsDjxHomj8tyaWsyT4ZaLhhiWQCnO3+hfagCC7MrOYxAl94H7gZkW8GIfAj0A4R+MKF+QJaejp9MjCN1+V11Tw3JHUEzoYC0YIyuGRYSxDyR/8DgRmzkLLYsQ+9T4oWjiySqp3guoDAp8DJ9aHF3LzwrO9iqS1uXPAFenpCGdgqgFUAAAAASUVORK5CYII="/>
             </button>
         </div>

@@ -90,11 +90,17 @@
         // selected file count
         var selectedFileCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file .square.selected').length;
 
+        // disable/enable copy button
+        $(mainDialogRef.getModalBody()).find('button[data-request=copy]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+
+        // disable/enable cut button
+        $(mainDialogRef.getModalBody()).find('button[data-request=cut]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+
         // disable/enable delete button
-        $(mainDialogRef.getModalBody()).find('button[data-request=deleteitems]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+        $(mainDialogRef.getModalBody()).find('button[data-request=delete]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
 
         // disable/enable edit button
-        $(mainDialogRef.getModalBody()).find('button[data-request=edititems]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
+        $(mainDialogRef.getModalBody()).find('button[data-request=edit]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
 
         // disable/enable ok button
         mainDialogRef.getButton('btn-ok').prop('disabled', !selectedFileCount || (!_this.options.selectMultiple && selectedFileCount > 1));
@@ -671,31 +677,7 @@
                 var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
 
                 // check selected items count
-                if (!(directories.length + files.length)) {
-                    // ask the user before delete
-                    SimpleBsDialog.show({
-                        width: '500px',
-                        autoWidth: false,
-                        height: '180px',
-                        autoHeight: false,
-                        title: 'Copy',
-                        closable: true,
-                        spinner: false,
-                        closeByBackdrop: true,
-                        closeByKeyboard: true,
-                        html: 'Please select at least one file or directory!',
-                        cssClass: 'laravel-explorer input-dialog',
-                        buttons: [{
-                            id: 'btn-close',
-                            label: 'Close',
-                            cssClass: 'btn-primary',
-                            action: function(copyItemsDialogRef) {
-                                // close the dialog
-                                copyItemsDialogRef.close();
-                            },
-                        }],
-                    });
-                } else {
+                if (directories.length + files.length > 0) {
                     // call copy items
                     copyItems(_this, mainDialogRef, directories, files);
                 }
@@ -707,31 +689,7 @@
                 var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
 
                 // check selected items count
-                if (!(directories.length + files.length)) {
-                    // ask the user before delete
-                    SimpleBsDialog.show({
-                        width: '500px',
-                        autoWidth: false,
-                        height: '180px',
-                        autoHeight: false,
-                        title: 'Cut',
-                        closable: true,
-                        spinner: false,
-                        closeByBackdrop: true,
-                        closeByKeyboard: true,
-                        html: 'Please select at least one file or directory!',
-                        cssClass: 'laravel-explorer input-dialog',
-                        buttons: [{
-                            id: 'btn-close',
-                            label: 'Close',
-                            cssClass: 'btn-primary',
-                            action: function(cutItemsDialogRef) {
-                                // close the dialog
-                                cutItemsDialogRef.close();
-                            },
-                        }],
-                    });
-                } else {
+                if (directories.length + files.length > 0) {
                     // call cut items
                     cutItems(_this, mainDialogRef, directories, files);
                 }
@@ -749,79 +707,79 @@
             });
 
             // map delete items button
-            $(mainDialogRef.getModalBody()).find('button[data-request=deleteitems]').on('click', function() {
+            $(mainDialogRef.getModalBody()).find('button[data-request=delete]').on('click', function() {
                 // get selected directories/files
                 var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
 
-                // ask the user before delete
-                SimpleBsDialog.show({
-                    width: '500px',
-                    autoWidth: false,
-                    height: '180px',
-                    autoHeight: false,
-                    title: 'Delete',
-                    closable: true,
-                    spinner: false,
-                    closeByBackdrop: true,
-                    closeByKeyboard: true,
-                    cssClass: 'laravel-explorer input-dialog',
-                    onShow: function(deleteItemsDialogRef) {
-                        if (directories.length + files.length > 0) {
+                // check selected items count
+                if (directories.length + files.length > 0) {
+                    // ask the user before delete
+                    SimpleBsDialog.show({
+                        width: '500px',
+                        autoWidth: false,
+                        height: '180px',
+                        autoHeight: false,
+                        title: 'Delete',
+                        closable: true,
+                        spinner: false,
+                        closeByBackdrop: true,
+                        closeByKeyboard: true,
+                        cssClass: 'laravel-explorer input-dialog',
+                        onShow: function(deleteItemsDialogRef) {
                             deleteItemsDialogRef.getModalBody().html('Do you really want to delete the ' + (directories.length + files.length) + ' selected ' + (directories.length > 0 ? 'directorie(s)' : '') + (directories.length && files.length > 0 ? '/' : '') + (files.length > 0 ? 'file(s)' : '') + '?');
-                        } else {
-                            deleteItemsDialogRef.getModalBody().html('Please select at least one file or directory!');
-                        }
-                    },
-                    buttons: (directories.length + files.length > 0) ? [{
-                        id: 'btn-yes',
-                        label: 'Yes',
-                        cssClass: 'btn-primary',
-                        action: function(deleteItemsDialogRef) {
-                            // call delete directories/files
-                            deleteItems(_this, mainDialogRef, directories, files);
+                        },
+                        buttons: (directories.length + files.length > 0) ? [{
+                            id: 'btn-yes',
+                            label: 'Yes',
+                            cssClass: 'btn-primary',
+                            action: function(deleteItemsDialogRef) {
+                                // call delete directories/files
+                                deleteItems(_this, mainDialogRef, directories, files);
 
-                            // close the dialog
-                            deleteItemsDialogRef.close();
-                        },
-                    }, {
-                        id: 'btn-cancel',
-                        label: 'Cancel',
-                        cssClass: 'btn-secondary',
-                        action: function(deleteItemsDialogRef) {
-                            // close the dialog
-                            deleteItemsDialogRef.close();
-                        },
-                    }] : [{
-                        id: 'btn-close',
-                        label: 'Close',
-                        cssClass: 'btn-primary',
-                        action: function(deleteItemsDialogRef) {
-                            // close the dialog
-                            deleteItemsDialogRef.close();
-                        },
-                    }],
-                });
+                                // close the dialog
+                                deleteItemsDialogRef.close();
+                            },
+                        }, {
+                            id: 'btn-cancel',
+                            label: 'Cancel',
+                            cssClass: 'btn-secondary',
+                            action: function(deleteItemsDialogRef) {
+                                // close the dialog
+                                deleteItemsDialogRef.close();
+                            },
+                        }] : [{
+                            id: 'btn-close',
+                            label: 'Close',
+                            cssClass: 'btn-primary',
+                            action: function(deleteItemsDialogRef) {
+                                // close the dialog
+                                deleteItemsDialogRef.close();
+                            },
+                        }],
+                    });
+                }
             });
 
             // map edit items button
-            $(mainDialogRef.getModalBody()).find('button[data-request=edititems]').on('click', function() {
+            $(mainDialogRef.getModalBody()).find('button[data-request=edit]').on('click', function() {
                 // get selected directories/files
                 var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
 
-                // ask the user before delete
-                SimpleBsDialog.show({
-                    width: '500px',
-                    autoWidth: false,
-                    height: '180px',
-                    autoHeight: false,
-                    title: 'Rename',
-                    closable: true,
-                    spinner: false,
-                    closeByBackdrop: true,
-                    closeByKeyboard: true,
-                    cssClass: 'laravel-explorer input-dialog',
-                    onShow: function(editItemsDialogRef) {
-                        if (directories.length + files.length > 0) {
+                // check selected items count
+                if (directories.length + files.length > 0) {
+                    // show the edit dialog for the user
+                    SimpleBsDialog.show({
+                        width: '500px',
+                        autoWidth: false,
+                        height: '180px',
+                        autoHeight: false,
+                        title: 'Rename',
+                        closable: true,
+                        spinner: false,
+                        closeByBackdrop: true,
+                        closeByKeyboard: true,
+                        cssClass: 'laravel-explorer input-dialog',
+                        onShow: function(editItemsDialogRef) {
                             // html for inputs
                             var html = '';
 
@@ -837,52 +795,50 @@
 
                             // update html
                             editItemsDialogRef.getModalBody().html(html);
-                        } else {
-                            editItemsDialogRef.getModalBody().html('Please select at least one file or directory!');
-                        }
-                    },
-                    buttons: (directories.length + files.length > 0) ? [{
-                        id: 'btn-ok',
-                        label: 'OK',
-                        cssClass: 'btn-primary',
-                        action: function(editItemsDialogRef) {
-                            // get updatable names
-                            var directoryNames = {}, fileNames = {};
-
-                            // directory names
-                            editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-directory-name-').each(function() {
-                                directoryNames[$(this).attr('data-id')] = $(this).val();
-                            });
-
-                            // file names
-                            editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-file-name-').each(function() {
-                                fileNames[$(this).attr('data-id')] = $(this).val();
-                            });
-
-                            // call delete directories/files
-                            renameItems(_this, mainDialogRef, directoryNames, fileNames);
-
-                            // close the dialog
-                            editItemsDialogRef.close();
                         },
-                    }, {
-                        id: 'btn-cancel',
-                        label: 'Cancel',
-                        cssClass: 'btn-secondary',
-                        action: function(editItemsDialogRef) {
-                            // close the dialog
-                            editItemsDialogRef.close();
-                        },
-                    }] : [{
-                        id: 'btn-close',
-                        label: 'Close',
-                        cssClass: 'btn-primary',
-                        action: function(editItemsDialogRef) {
-                            // close the dialog
-                            editItemsDialogRef.close();
-                        },
-                    }],
-                });
+                        buttons: (directories.length + files.length > 0) ? [{
+                            id: 'btn-ok',
+                            label: 'OK',
+                            cssClass: 'btn-primary',
+                            action: function(editItemsDialogRef) {
+                                // get updatable names
+                                var directoryNames = {}, fileNames = {};
+
+                                // directory names
+                                editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-directory-name-').each(function() {
+                                    directoryNames[$(this).attr('data-id')] = $(this).val();
+                                });
+
+                                // file names
+                                editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-file-name-').each(function() {
+                                    fileNames[$(this).attr('data-id')] = $(this).val();
+                                });
+
+                                // call delete directories/files
+                                renameItems(_this, mainDialogRef, directoryNames, fileNames);
+
+                                // close the dialog
+                                editItemsDialogRef.close();
+                            },
+                        }, {
+                            id: 'btn-cancel',
+                            label: 'Cancel',
+                            cssClass: 'btn-secondary',
+                            action: function(editItemsDialogRef) {
+                                // close the dialog
+                                editItemsDialogRef.close();
+                            },
+                        }] : [{
+                            id: 'btn-close',
+                            label: 'Close',
+                            cssClass: 'btn-primary',
+                            action: function(editItemsDialogRef) {
+                                // close the dialog
+                                editItemsDialogRef.close();
+                            },
+                        }],
+                    });
+                }
             });
 
             // map createdirectory button
