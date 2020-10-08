@@ -155,13 +155,12 @@ class DirectoryController extends BaseController
             ], 400);
         }
 
-        // get all names
-        $subdirectories = $currentDirectory->subdirectories->where('id', '!=', $directory->id)->pluck('name')->all();
+        // count directories with the same name
+        $sameCount = $currentDirectory->subdirectories()->where('id', '!=', $directory->id)->whereName($request->name)->count();
 
         // name already exists (even if it's own name)
-        if (in_array($request->name, $subdirectories)) {
+        if ($sameCount > 0) {
             return response()->json([
-                'name' => $directory->name,
                 'message' => 'Could not rename directory from '.$directory->name.' to '.$request->name,
             ], 400);
         }

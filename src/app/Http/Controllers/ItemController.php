@@ -377,10 +377,10 @@ class ItemController extends BaseController
                 $directory = WlrleDirectory::whereId($directoryId)->first();
 
                 if ($directory) {
-                    // get all subdirectory names
-                    $subdirectories = $currentDirectory->subdirectories->where('id', '!=', $directory->id)->pluck('name')->all();
+                    // count directories with the same name
+                    $sameCount = $currentDirectory->subdirectories()->where('id', '!=', $directory->id)->whereName($directoryName)->count();
 
-                    if ($directoryName != "" && !in_array($directoryName, $subdirectories)) {
+                    if ($directoryName != "" && $sameCount == 0) {
                         // set the new name
                         $directory->name = $directoryName;
 
@@ -401,10 +401,10 @@ class ItemController extends BaseController
                 $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file) {
-                    // get all file names
-                    $files = $currentDirectory->files->where('id', '!=', $file->id)->pluck('name')->all();
+                    // count directories with the same name
+                    $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($fileName)->count();
 
-                    if ($fileName != "" && !in_array($fileName, $files)) {
+                    if ($fileName != "" && $sameCount == 0) {
                         // set the new name
                         $file->name = $fileName;
 

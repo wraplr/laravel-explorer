@@ -166,72 +166,80 @@
             mainDialogRef.close();
         });
 
-        // rename item (double click to input)
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('dblclick', function() {
-            // rename item
-            $(this).prop('readonly', false);
+        // initial name
+        var initName = null;
 
+        // enter the input in edit mode if double click happens
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('dblclick', function() {
+            // save name
+            initName = $(this).val();
+
+            // set edit mode
+            $(this).prop('readonly', false);
+        });
+
+        // rename item if focus is lost
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('blur', function() {
             // store input
             var input = $(this);
 
-            // original name (if rename fails)
-            var originalName = input.val();
+            // if the input is readonly, do nothing
+            if (input.prop('readonly')) {
+                return;
+            }
 
-            // focus out, so rename it
-            $(this).off('blur').on('blur', function() {
-                // get item
-                var item = input.closest('.item');
+            // get item
+            var item = input.closest('.item');
 
-                // on renamed
-                function renamed(name)
-                {
-                    // set new name
-                    input.val(name);
+            // on renamed
+            function renamed(name)
+            {
+                // set new name
+                input.val(name);
 
-                    // set input back to readonly
-                    input.prop('readonly', true);
-                }
+                // set input back to readonly
+                input.prop('readonly', true);
+            }
 
-                // on failed
-                function failed()
-                {
-                    // set original name
-                    input.val(originalName);
+            // on failed
+            function failed()
+            {
+                // set original name
+                input.val(initName);
 
-                    // set input back to readonly
-                    input.prop('readonly', true);
-                }
+                // set input back to readonly
+                input.prop('readonly', true);
+            }
 
-                // call rename
-                if (item.hasClass('directory')) {
-                    // rename directory
-                    renameDirectory(_this, mainDialogRef, item.attr('data-id'), input.val(), function(name) {
-                        // renamed
-                        renamed(name);
-                    }, function() {
-                        // failed
-                        failed();
-                    });
-                } else if (item.hasClass('file')) {
-                    // rename file
-                    renameFile(_this, mainDialogRef, item.attr('data-id'), input.val(), function(name) {
-                        // renamed
-                        renamed(name);
-                    }, function() {
-                        // failed
-                        failed();
-                    });
-                }
-            });
+            // call rename
+            if (item.hasClass('directory')) {
+                // rename directory
+                renameDirectory(_this, mainDialogRef, item.attr('data-id'), input.val(), function(name) {
+                    // renamed
+                    renamed(name);
+                }, function() {
+                    // failed
+                    failed();
+                });
+            } else if (item.hasClass('file')) {
+                // rename file
+                renameFile(_this, mainDialogRef, item.attr('data-id'), input.val(), function(name) {
+                    // renamed
+                    renamed(name);
+                }, function() {
+                    // failed
+                    failed();
+                });
+            }
+        });
 
+        // also rename if enter pressed
+        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('keydown', function(e) {
             // enter pressed
-            $(document).off('keydown', $(this)).on('keydown', $(this), function(e) {
-                // enter pressed
-                if (e.which == 13) {
-                    // remove focus, to do the rename
-                    input.blur();
-                }
-            });
+            if (e.which == 13) {
+                // remove focus, to do the rename
+                $(this).blur();
+            }
         });
 
         // rename item (click to edit button)
@@ -457,11 +465,6 @@
                 onRenamed(result.name);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            // call renamed callback
-            if ($.isFunction(onRenamed)) {
-                onRenamed(jqXHR.responseJSON.name);
-            }
-
             // call failed callback
             if ($.isFunction(onFailed)) {
                 onFailed();
@@ -495,11 +498,6 @@
                 onRenamed(result.name);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            // call renamed callback
-            if ($.isFunction(onRenamed)) {
-                onRenamed(jqXHR.responseJSON.name);
-            }
-
             // call failed callback
             if ($.isFunction(onFailed)) {
                 onFailed();
