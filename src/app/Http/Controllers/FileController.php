@@ -127,13 +127,12 @@ class FileController extends BaseController
             ], 400);
         }
 
-        // get all names
-        $files = $currentDirectory->files->where('id', '!=', $file->id)->pluck('name')->all();
+        // count directories with the same name
+        $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($request->name)->count();
 
         // name already exists (even if it's own name)
-        if (in_array($request->name, $files)) {
+        if ($sameCount > 0) {
             return response()->json([
-                'name' => $file->name,
                 'message' => 'Could not rename file from '.$file->name.' to '.$request->name,
             ], 400);
         }
