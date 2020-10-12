@@ -113,51 +113,63 @@ class ItemController extends BaseController
                 $breadcrumbIds = array_slice(array_column($this->getBreadcrumbDirs($currentDirectory), 'id'), 1);
 
                 if ($directory && !in_array($directory->id, $breadcrumbIds)) {
-                    // create model
-                    $wlrleDirectory = new WlrleDirectory([
-                        'name' => $this->getUniqueDirectoryName($currentDirectory, $directory->name),
-                    ]);
-
-                    // create new directory in database
-                    $currentDirectory->subdirectories()->save($wlrleDirectory);
-
-                    // copy files (note that we don't copy sudirectories)
-                    foreach ($directory->files as $file) {
-                        // phisical path, relative to base_directory/upload_directory
-                        $path = Carbon::now()->format('Y/m/d');
-
+                    // copy directories/files recursively
+                    $copyRecursively = function($currentDirectory, $directory) use (&$copyRecursively, &$errors, $base) {
                         // create model
-                        $wlrleFile = new WlrleFile([
-                            'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
-                            'mime_type' => $file->mime_type,
-                            'path' => $path,
-                            'extension' => $file->extension,
-                            'size' => $file->size,
+                        $wlrleDirectory = new WlrleDirectory([
+                            'name' => $this->getUniqueDirectoryName($currentDirectory, $directory->name),
                         ]);
 
-                        // create new file in database
-                        $wlrleDirectory->files()->save($wlrleFile);
+                        // create new directory in database
+                        $currentDirectory->subdirectories()->save($wlrleDirectory);
 
-                        // new phisical full path
-                        $full = $base.'/'.$path;
-
-                        // create it, if any
-                        if (!is_dir($full)) {
-                            mkdir($full, 0777, true);
+                        // copy subdirectories
+                        foreach ($directory->subdirectories as $subdirectory) {
+                            // call it for the subdirectory
+                            $copyRecursively($wlrleDirectory, $subdirectory);
                         }
 
-                        // new storage path
-                        $storagePath = $full.'/'.base_convert($wlrleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
+                        // copy files
+                        foreach ($directory->files as $file) {
+                            // phisical path, relative to base_directory/upload_directory
+                            $path = Carbon::now()->format('Y/m/d');
 
-                        // copy file phisically
-                        if (!@copy($file->storagePath(), $storagePath)) {
-                            // copy error
-                            $wlrleFile->delete();
+                            // create model
+                            $wlrleFile = new WlrleFile([
+                                'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
+                                'mime_type' => $file->mime_type,
+                                'path' => $path,
+                                'extension' => $file->extension,
+                                'size' => $file->size,
+                            ]);
 
-                            // add error
-                            $errors[] = 'Could not copy file from <strong>'.$file->storagePath().'</strong> to <strong>'.$storagePath.'</strong>. System error.';
+                            // create new file in database
+                            $wlrleDirectory->files()->save($wlrleFile);
+
+                            // new phisical full path
+                            $full = $base.'/'.$path;
+
+                            // create it, if any
+                            if (!is_dir($full)) {
+                                mkdir($full, 0777, true);
+                            }
+
+                            // new storage path
+                            $storagePath = $full.'/'.base_convert($wlrleFile->id, 10, 36).($file->extension == '' ? '' : '.').$file->extension;
+
+                            // copy file phisically
+                            if (!@copy($file->storagePath(), $storagePath)) {
+                                // copy error
+                                $wlrleFile->delete();
+
+                                // add error
+                                $errors[] = 'Could not copy file from <strong>'.$file->storagePath().'</strong> to <strong>'.$storagePath.'</strong>. System error.';
+                            }
                         }
-                    }
+                    };
+
+                    // call it for the main directory
+                    $copyRecursively($currentDirectory, $directory);
                 } else {
                     // add error
                     $errors[] = 'Could not copy directory from <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).'</strong> to <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory))).'/'.$directory->name.'</strong>';
@@ -402,7 +414,7 @@ class ItemController extends BaseController
 
                 if ($file) {
                     // file extension could not be renamed
-                    if (strtolower(pathinfo($file->name, PATHINFO_EXTENSION)) == strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+                    if ($file->extension == strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
                         // count directories with the same name
                         $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($fileName)->count();
 

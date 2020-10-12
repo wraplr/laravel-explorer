@@ -128,7 +128,7 @@ class FileController extends BaseController
         }
 
         // file extension could not be renamed
-        if (strtolower(pathinfo($file->name, PATHINFO_EXTENSION)) != strtolower(pathinfo($request->name, PATHINFO_EXTENSION))) {
+        if ($file->extension != strtolower(pathinfo($request->name, PATHINFO_EXTENSION))) {
             return response()->json([
                 'message' => 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$request->name.'</strong>. The file extension can\'t be changed.',
             ], 400);
