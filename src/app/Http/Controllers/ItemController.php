@@ -155,12 +155,12 @@ class ItemController extends BaseController
                             $wlrleFile->delete();
 
                             // add error
-                            $errors[] = 'Could not copy file from '.$file->storagePath().' to '.$storagePath;
+                            $errors[] = 'Could not copy file from <strong>'.$file->storagePath().'</strong> to <strong>'.$storagePath.'</strong>. System error.';
                         }
                     }
                 } else {
                     // add error
-                    $errors[] = 'Could not copy directory '.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).' to '.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory)));
+                    $errors[] = 'Could not copy directory from <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).'</strong> to <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory))).'/'.$directory->name.'</strong>';
                 }
             }
         }
@@ -205,7 +205,7 @@ class ItemController extends BaseController
                         $wlrleFile->delete();
 
                         // add error
-                        $errors[] = 'Could not copy file from '.$file->storagePath().' to '.$storagePath;
+                        $errors[] = 'Could not copy file from <strong>'.$file->storagePath().'</strong> to <strong>'.$storagePath.'</strong>. System error.';
                     }
                 }
             }
@@ -230,7 +230,7 @@ class ItemController extends BaseController
                     $directory->save();
                 } else {
                     // add error
-                    $errors[] = 'Could not move directory '.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).' to '.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory)));
+                    $errors[] = 'Could not move directory from <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).'</strong> to <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory))).'/'.$directory->name.'</strong>';
                 }
             }
         }
@@ -388,7 +388,7 @@ class ItemController extends BaseController
                         $directory->save();
                     } else {
                         // add error
-                        $errors[] = 'Could not rename directory from '.$directory->name.' to '.$directoryName;
+                        $errors[] = 'Could not rename directory from <strong>'.$directory->name.'</strong> to <strong>'.$directoryName.'</strong>. The name already exists.';
                     }
                 }
             }
@@ -401,18 +401,24 @@ class ItemController extends BaseController
                 $file = WlrleFile::whereId($fileId)->first();
 
                 if ($file) {
-                    // count directories with the same name
-                    $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($fileName)->count();
+                    // file extension could not be renamed
+                    if (strtolower(pathinfo($file->name, PATHINFO_EXTENSION)) == strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+                        // count directories with the same name
+                        $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($fileName)->count();
 
-                    if ($fileName != "" && $sameCount == 0) {
-                        // set the new name
-                        $file->name = $fileName;
+                        if ($fileName != "" && $sameCount == 0) {
+                            // set the new name
+                            $file->name = $fileName;
 
-                        // save it
-                        $file->save();
+                            // save it
+                            $file->save();
+                        } else {
+                            // add error
+                            $errors[] = 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$fileName.'</strong>. The name already exists.';
+                        }
                     } else {
                         // add error
-                        $errors[] = 'Could not rename file from '.$file->name.' to '.$fileName;
+                        $errors[] = 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$fileName.'</strong>. The file extension can\'t be changed.';
                     }
                 }
             }
