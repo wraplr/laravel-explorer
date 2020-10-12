@@ -161,7 +161,7 @@ class DirectoryController extends BaseController
         // name already exists (even if it's own name)
         if ($sameCount > 0) {
             return response()->json([
-                'message' => 'Could not rename directory from '.$directory->name.' to '.$request->name,
+                'message' => 'Could not rename directory from <strong>'.$directory->name.'</strong> to <strong>'.$request->name.'</strong>. The name already exists.',
             ], 400);
         }
 

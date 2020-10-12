@@ -127,13 +127,20 @@ class FileController extends BaseController
             ], 400);
         }
 
+        // file extension could not be renamed
+        if (strtolower(pathinfo($file->name, PATHINFO_EXTENSION)) != strtolower(pathinfo($request->name, PATHINFO_EXTENSION))) {
+            return response()->json([
+                'message' => 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$request->name.'</strong>. The file extension can\'t be changed.',
+            ], 400);
+        }
+
         // count directories with the same name
         $sameCount = $currentDirectory->files()->where('id', '!=', $file->id)->whereName($request->name)->count();
 
         // name already exists (even if it's own name)
         if ($sameCount > 0) {
             return response()->json([
-                'message' => 'Could not rename file from '.$file->name.' to '.$request->name,
+                'message' => 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$request->name.'</strong>. The name already exists.',
             ], 400);
         }
 
