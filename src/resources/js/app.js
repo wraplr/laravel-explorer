@@ -15,10 +15,11 @@
             closable: true,
             spinner: false,
             spinnerIcon: '<span class="spinner-border" role="status"></span>',
+            currentWorkingDirectory: null,
             closeByBackdrop: true,
             closeByKeyboard: true,
             selectMultiple: true,
-            onSelected: function(files){},
+            onSelected: function(files, currentWorkingDirectory){},
         }, options);
 
         // reference to main dialog
@@ -28,7 +29,7 @@
         this.fileInfoList = [];
 
         // error counts
-        this.errorCount = 0;
+        this.alertCount = 0;
     };
 
     // private methods
@@ -60,7 +61,7 @@
         enableButtons(_this, mainDialogRef);
     }
 
-    function fail(_this, mainDialogRef, messages)
+    function alert(_this, mainDialogRef, type, messages, onAlertAdded)
     {
         // display closable errors
         if ($.type(messages) === 'string') {
@@ -70,16 +71,26 @@
         // show an alert for each error
         $.each(messages, function(i, message) {
             // get new id for error
-            var errorId = _this.errorCount++;
+            var alertId = _this.alertCount++;
 
             // display the alert
-            $(mainDialogRef.getModalBody()).find('.laravel-explorer .errors').append('<div class="alert alert-danger alert-dismissible fade show" role="alert" data-error-id="' + errorId + '">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            $(mainDialogRef.getModalBody()).find('.laravel-explorer .alerts').append('<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert" data-alert-id="' + alertId + '">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
 
-            // hide it after 3 seconds
-            $('div[data-error-id=' + errorId + ']').delay(5000).slideUp(500, function() {
+            // call alert added
+            if ($.isFunction(onAlertAdded)) {
+                onAlertAdded($('div[data-alert-id=' + alertId + ']'));
+            }
+
+            // hide it after 5 seconds
+            $('div[data-alert-id=' + alertId + ']').delay(5000).slideUp(500, function() {
                 $(this).alert('close');
             });
         });
+    }
+
+    function getCurrentWorkingDirectory(_this, mainDialogRef)
+    {
+        return parseInt($(mainDialogRef.getModalBody()).find('.laravel-explorer nav[aria-label=breadcrumb] .breadcrumb-item span, a').last().attr('data-id'));
     }
 
     function enableButtons(_this, mainDialogRef)
@@ -160,7 +171,7 @@
             var fileInfo = getFileInfo(_this, parseInt($(this).closest('.item').attr('data-id')));
 
             // call onSelected callback
-            _this.options.onSelected(_this.options.selectMultiple ? [fileInfo] : fileInfo);
+            _this.options.onSelected(_this.options.selectMultiple ? [fileInfo] : fileInfo, getCurrentWorkingDirectory(_this, mainDialogRef));
 
             // close dialog
             mainDialogRef.close();
@@ -368,7 +379,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -407,7 +418,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -435,7 +446,7 @@
             bindToItems(_this, mainDialogRef);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -471,7 +482,7 @@
             }
 
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -504,7 +515,7 @@
             }
 
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -532,7 +543,7 @@
             $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -563,7 +574,7 @@
             $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -590,7 +601,7 @@
             $(mainDialogRef.getModalBody()).find('button[data-request=paste]').prop('disabled', !result.paste);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // refresh after paste
             refresh(_this, mainDialogRef)
@@ -618,7 +629,7 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // refresh after delete
             refresh(_this, mainDialogRef)
@@ -646,7 +657,7 @@
             // success, but nothing to do here
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // refresh after rename
             refresh(_this, mainDialogRef)
@@ -919,7 +930,7 @@
                                 this.defaultOptions.error(file, 'An error occured! (' + file.name + ')');
 
                                 // no success
-                                fail(_this, mainDialogRef, message);
+                                alert(_this, mainDialogRef, 'danger', message);
                             }, queuecomplete: function() {
                                 // enable close button
                                 uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
@@ -971,9 +982,37 @@
 
             // bind to change directory
             bindToItems(_this, mainDialogRef);
+
+            // go to current working directory (if set)
+            if (_this.options.currentWorkingDirectory != null) {
+                $.ajax({
+                    type: 'GET',
+                    url: mergeUrl(_this.options.baseUrl, 'directory/' + _this.options.currentWorkingDirectory + '/path'),
+                }).done(function(result) {
+                    // are we in the same directory?
+                    if (!('message' in result)) {
+                        return;
+                    }
+
+                    // success, offer go to path
+                    alert(_this, mainDialogRef, 'warning', result.message, function(elem) {
+                        // subscribe to button click event
+                        $(elem).find('button').on('click', function() {
+                            // go to directory
+                            changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'change');
+
+                            // close alert
+                            $(elem).alert('close');
+                        });
+                    });
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    // no success
+                    alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
+                });
+            }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // no success
-            fail(_this, mainDialogRef, jqXHR.responseJSON.message);
+            alert(_this, mainDialogRef, 'danger', jqXHR.responseJSON.message);
         }).always(function() {
             // done
             loaded(_this, mainDialogRef);
@@ -1023,10 +1062,10 @@
                             });
                             
                             // call onSelected callback
-                            _this.options.onSelected(fileInfoList);
+                            _this.options.onSelected(fileInfoList, getCurrentWorkingDirectory(_this, mainDialogRef));
                         } else {
                             // call onSelected callback with the first selected file
-                            _this.options.onSelected(getFileInfo(_this, files[0]));
+                            _this.options.onSelected(getFileInfo(_this, files[0]), getCurrentWorkingDirectory(_this, mainDialogRef));
                         }
                     }
 

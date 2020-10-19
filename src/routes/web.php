@@ -8,6 +8,7 @@ Route::group(['prefix' => config('wlrle.url_prefix'), 'middleware' => config('wl
         Route::get('/{id}/change/{request}', 'DirectoryController@change');
         Route::post('/create', 'DirectoryController@create');
         Route::patch('/{id}/rename', 'DirectoryController@rename');
+        Route::get('/{id}/path', 'DirectoryController@path');
     });
 
     Route::group(['prefix' => 'file'], function () {

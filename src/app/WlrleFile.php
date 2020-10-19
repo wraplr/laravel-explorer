@@ -16,6 +16,13 @@ class WlrleFile extends Model
         'size',
     ];
 
+    // store file extensions in lowercase
+    public function setExtensionAttribute($value)
+    {
+        $this->attributes['extension'] = strtolower($value);
+    }
+
+    // other methods
     public function isImage()
     {
         return (Image::imageType($this->mime_type) > 0);

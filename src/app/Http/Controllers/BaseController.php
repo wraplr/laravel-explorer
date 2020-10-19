@@ -167,11 +167,11 @@ class BaseController extends Controller
         $directoryName = $directoryOriginalName;
 
         // get all names
-        $directoryNames = $currentDirectory->subdirectories->pluck('name')->all();
+        $directoryNames = array_map('strtolower', $currentDirectory->subdirectories->pluck('name')->all());
 
         // rename it, if any
         $directoryIndex = 0;
-        while (in_array($directoryName, $directoryNames)) {
+        while (in_array(strtolower($directoryName), $directoryNames)) {
             $directoryName = $directoryOriginalName.' ('.(++$directoryIndex).')';
         }
 
@@ -185,15 +185,31 @@ class BaseController extends Controller
         $fileName = $fileOriginalName;
 
         // get all names
-        $fileNames = $currentDirectory->files->pluck('name')->all();
+        $fileNames = array_map('strtolower', $currentDirectory->files->pluck('name')->all());
 
         // rename it, if any
         $fileIndex = 0;
-        while (in_array($fileName, $fileNames)) {
+        while (in_array(strtolower($fileName), $fileNames)) {
             $fileName = pathinfo($fileOriginalName, PATHINFO_FILENAME).' ('.(++$fileIndex).')'.(pathinfo($fileOriginalName, PATHINFO_EXTENSION) == '' ? '' : '.').pathinfo($fileOriginalName, PATHINFO_EXTENSION);
         }
 
         // return updated or original name
         return $fileName;
+    }
+
+    protected function getDirectoryPath($directory)
+    {
+        // build path
+        $fullPath = [];
+        do {
+            if ($directory->parent == null) {
+                $fullPath[] = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAuUlEQVRIS2NkoDFgpLH5DPSzIKH9twMjA9N8BgYGBQp99eA/w7/EBZWsB0DmwH2Q2P73AQMDgzyFhsO0P5hfyayIbsF/kMD8SmaKgi2x/S+KOcg+GLUAHP6jQUQwFY+AICIYBkQqgGVYjIxGpH6CyrBZ8IGBgYGfoE7iFDycX8kMLjThPoCWpguoUOA9/M/wLwGjNCXGYehJkBg9JJWcNLEAZigu1xIq3gn6gOYWEBPO+NQQ9AGlFgAAv/R6GSeuz3UAAAAASUVORK5CYII="/>';
+            } else {
+                $fullPath[] = $directory->name;
+            }
+        } while ($directory = $directory->parent);
+
+        // concat the results
+        return implode('/', array_reverse($fullPath));
     }
 }
