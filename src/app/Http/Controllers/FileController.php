@@ -49,7 +49,7 @@ class FileController extends BaseController
         // get uploaded file
         $file = $request->file('file');
 
-        // check for unique name
+        // check for unique file name
         $fileName = $this->getUniqueFileName($currentDirectory, $file->getClientOriginalName());
 
         // create model
@@ -57,7 +57,7 @@ class FileController extends BaseController
             'name' => $fileName,
             'mime_type' => mime_content_type($file->getPathName()),
             'path' => $path,
-            'extension' => strtolower($file->getClientOriginalExtension()),
+            'extension' => $file->getClientOriginalExtension(),
             'size' => $file->getSize(),
         ]);
 

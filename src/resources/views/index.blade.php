@@ -1,5 +1,5 @@
 <div class="container-fluid laravel-explorer">
-    <div class="errors"></div>
+    <div class="alerts"></div>
     <div class="btn-toolbar mb-1" role="toolbar">
         <div class="btn-group mr-2" role="group">
             <button type="button" class="btn btn-lg btn-light" title="Copy" data-request="copy">

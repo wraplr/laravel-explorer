@@ -15,10 +15,10 @@ class CreateWlrleFilesTable extends Migration
     {
         Schema::create('wlrle_files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('mime_type');
             $table->string('path');
+            $table->string('name');
             $table->string('extension');
+            $table->string('mime_type');
             $table->integer('size');
             $table->unsignedBigInteger('directory_id')->nullable();
             $table->foreign('directory_id')->references('id')->on('wlrle_directories')->onDelete('cascade');

@@ -77,28 +77,23 @@ class Image
 
         switch ($this->imageType) {
         case IMAGETYPE_JPEG: {
-            $this->imageRes = @imagecreatefromjpeg($imagePath);
-            break;
+            return ($this->imageRes = @imagecreatefromjpeg($imagePath));
         }
         case IMAGETYPE_WEBP: {
-            $this->imageRes = @imagecreatefromwebp($imagePath);
-            break;
+            return ($this->imageRes = @imagecreatefromwebp($imagePath));
         }
         case IMAGETYPE_GIF: {
-            $this->imageRes = @imagecreatefromgif($imagePath);
-            break;
+            return ($this->imageRes = @imagecreatefromgif($imagePath));
         }
         case IMAGETYPE_PNG: {
-            $this->imageRes = @imagecreatefrompng($imagePath);
-            break;
+            return ($this->imageRes = @imagecreatefrompng($imagePath));
         }
         case IMAGETYPE_BMP: {
-            $this->imageRes = @imagecreatefrombmp($imagePath);
-            break;
+            return ($this->imageRes = @imagecreatefrombmp($imagePath));
         }
         }
 
-        return $this->imageRes;
+        return ($this->imageRes = null);
     }
     
     public function close()

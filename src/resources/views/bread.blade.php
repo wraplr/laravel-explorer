@@ -8,6 +8,6 @@
     @elseif ($index < count($breadcrumbDirs) - 1)
         <li class="breadcrumb-item"><a href="javascript:;" data-id="{{ $directory->id }}">{{ $directory->name }}</a></li>
     @else
-        <li class="breadcrumb-item">{{ $directory->name }}</li>
+        <li class="breadcrumb-item"><span data-id="{{ $directory->id }}">{{ $directory->name }}</span></li>
     @endif
 @endforeach

@@ -95,17 +95,8 @@ class DirectoryController extends BaseController
             ], 400);
         }
 
-        // check if directory exists on the same level => dirname => dirname (x)
-        $directoryName = $request->name;
-
-        // get all names
-        $subdirectories = $currentDirectory->subdirectories->pluck('name')->all();
-
-        // rename it, if any
-        $directoryIndex = 0;
-        while (in_array($directoryName, $subdirectories)) {
-            $directoryName = $request->name.' ('.(++$directoryIndex).')';
-        }
+        // check for unique directory name
+        $directoryName = $this->getUniqueDirectoryName($currentDirectory, $request->name);
 
         // create new directory
         $currentDirectory->subdirectories()->save(new WlrleDirectory([
@@ -174,6 +165,32 @@ class DirectoryController extends BaseController
         // success
         return response()->json([
             'name' => $directory->name,
+        ], 200);
+    }
+
+    public function path($id)
+    {
+        // get current working directory
+        $currentDirectory = $this->getCurrentWorkingDirectory();
+
+        // check if they are the same
+        if ($currentDirectory->id == $id) {
+            return response()->json([], 200);
+        }
+
+        // get directory by id
+        $directory = WlrleDirectory::whereId($id)->first();
+
+        // error
+        if (!$directory) {
+            return response()->json([
+                'message' => 'Could not get directory path from <strong>id = '.$id.'</strong>.',
+            ], 400);
+        }
+
+        // success
+        return response()->json([
+            'message' => 'Would you like to go to <strong>'.$this->getDirectoryPath($directory).'</strong>?<button type="button" class="btn btn-primary btn-sm ml-3" data-id="'.$id.'">Yes</button>',
         ], 200);
     }
 }

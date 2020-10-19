@@ -172,7 +172,7 @@ class ItemController extends BaseController
                     $copyRecursively($currentDirectory, $directory);
                 } else {
                     // add error
-                    $errors[] = 'Could not copy directory from <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).'</strong> to <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory))).'/'.$directory->name.'</strong>';
+                    $errors[] = 'Could not copy directory from <strong>'.$this->getDirectoryPath($directory).'</strong> to <strong>'.$this->getDirectoryPath($currentDirectory).'/'.$directory->name.'</strong>. Same directory.';
                 }
             }
         }
@@ -242,7 +242,7 @@ class ItemController extends BaseController
                     $directory->save();
                 } else {
                     // add error
-                    $errors[] = 'Could not move directory from <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($directory))).'</strong> to <strong>'.implode('', array_map(function($directory) { return ($directory->directory_id == null ? '' : '/'.$directory->name); }, $this->getBreadcrumbDirs($currentDirectory))).'/'.$directory->name.'</strong>';
+                    $errors[] = 'Could not move directory from <strong>'.$this->getDirectoryPath($directory).'</strong> to <strong>'.$this->getDirectoryPath($currentDirectory).'/'.$directory->name.'</strong>. Same directory.';
                 }
             }
         }
@@ -430,7 +430,7 @@ class ItemController extends BaseController
                         }
                     } else {
                         // add error
-                        $errors[] = 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$fileName.'</strong>. The file extension can\'t be changed.';
+                        $errors[] = 'Could not rename file from <strong>'.$file->name.'</strong> to <strong>'.$fileName.'</strong>. The file extension can not be changed.';
                     }
                 }
             }
