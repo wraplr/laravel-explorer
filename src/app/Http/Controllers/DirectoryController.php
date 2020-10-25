@@ -190,7 +190,7 @@ class DirectoryController extends BaseController
 
         // success
         return response()->json([
-            'message' => 'Would you like to go to <strong>'.$this->getDirectoryPath($directory).'</strong>?<button type="button" class="btn btn-primary btn-sm ml-3" data-id="'.$id.'">Yes</button>',
+            'message' => 'Would you like to go to <strong>'.$this->getDirectoryPath($directory).'</strong>?<button type="button" class="btn btn-primary btn-sm ml-3" data-id="'.$id.'" data-request="goto">Yes</button>',
         ], 200);
     }
 }

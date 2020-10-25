@@ -998,7 +998,7 @@
                     // success, offer go to path
                     alert(_this, mainDialogRef, 'warning', result.message, function(elem) {
                         // subscribe to button click event
-                        $(elem).find('button').on('click', function() {
+                        $(elem).find('button[data-request=goto]').on('click', function() {
                             // go to directory
                             changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'change');
 
