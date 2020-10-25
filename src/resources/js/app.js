@@ -15,10 +15,11 @@
             closable: true,
             spinner: false,
             spinnerIcon: '<span class="spinner-border" role="status"></span>',
-            currentWorkingDirectory: null,
             closeByBackdrop: true,
             closeByKeyboard: true,
             selectMultiple: true,
+            currentWorkingDirectory: null,
+            alertDuration: 5000,
             onSelected: function(files, currentWorkingDirectory){},
         }, options);
 
@@ -82,7 +83,7 @@
             }
 
             // hide it after 5 seconds
-            $('div[data-alert-id=' + alertId + ']').delay(5000).slideUp(500, function() {
+            $('div[data-alert-id=' + alertId + ']').delay(_this.options.alertDuration).slideUp(500, function() {
                 $(this).alert('close');
             });
         });
