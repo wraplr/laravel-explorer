@@ -985,7 +985,7 @@
             bindToItems(_this, mainDialogRef);
 
             // go to current working directory (if set)
-            if (_this.options.currentWorkingDirectory != null) {
+            if ($.isNumeric(_this.options.currentWorkingDirectory)) {
                 $.ajax({
                     type: 'GET',
                     url: mergeUrl(_this.options.baseUrl, 'directory/' + _this.options.currentWorkingDirectory + '/path'),
