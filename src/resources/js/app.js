@@ -1083,6 +1083,17 @@
                 },
             }],
             onShow: function(mainDialogRef) {
+                // override ctrl+a to select all
+                $(document).keydown(function(e) {
+                    if (e.ctrlKey && e.keyCode == 65) {
+                        // prevent event pass
+                        e.preventDefault();
+
+                        // select all
+                        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').addClass('selected');
+                    }
+                });
+
                 // disable buttons
                 mainDialogRef.getButtons().prop('disabled', true);
             },
@@ -1093,6 +1104,8 @@
             onHide: function(mainDialogRef) {
             },
             onHidden: function(mainDialogRef) {
+                // unsubscribe keydown event
+                $(document).unbind('keydown');
             },
         });
 
