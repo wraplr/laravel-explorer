@@ -665,6 +665,68 @@
         });
     }
 
+    function showUpload(_this, mainDialogRef)
+    {
+        var uploadCount = 0;
+
+        SimpleBsDialog.show({
+            width: '660px',
+            autoWidth: false,
+            height: '300px',
+            autoHeight: false,
+            title: 'Upload',
+            closable: true,
+            spinner: false,
+            closeByBackdrop: true,
+            closeByKeyboard: false,
+            cssClass: 'laravel-explorer input-dialog',
+            onShow: function(uploadDialogRef) {
+                uploadDialogRef.getModalBody().addClass('dropzone').dropzone({
+                    url: mergeUrl(_this.options.baseUrl, 'file/upload'),
+                    uploadMultiple: false,
+                    parallelUploads: 1,
+                    accept: function(file, done) {
+                        done();
+                    }, sending: function(file, dzXHR, formData) {
+                        if (uploadCount == 0) {
+                            // disable close button befor first file begins to upload
+                            uploadDialogRef.set('closable', false).getButton('btn-close').prop('disabled', true);
+                        }
+
+                        // add csrfToken to form
+                        formData.append('_token', _this.options.csrfToken);
+                    }, success: function(file, result) {
+                        // success
+                        uploadCount++;
+                    }, error: function(file, message, dzXHR) {
+                        // let also dropzone to handle the message
+                        this.defaultOptions.error(file, 'An error occured! (' + file.name + ')');
+
+                        // no success
+                        alert(_this, mainDialogRef, 'danger', message);
+                    }, queuecomplete: function() {
+                        // enable close button
+                        uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
+                    },
+                });
+            },
+            buttons: [{
+                id: 'btn-close',
+                label: 'Close',
+                cssClass: 'btn-primary',
+                action: function(uploadDialogRef) {
+                    // call refresh
+                    if (uploadCount) {
+                        refresh(_this, mainDialogRef);
+                    }
+
+                    // close the dialog
+                    uploadDialogRef.close();
+                },
+            }],
+        });
+    }
+
     function show(_this, mainDialogRef)
     {
         // loading
@@ -895,64 +957,8 @@
 
             // map uploadfile button
             $(mainDialogRef.getModalBody()).find('button[data-request=uploadfile]').on('click', function() {
-                var uploadCount = 0;
-
-                SimpleBsDialog.show({
-                    width: '660px',
-                    autoWidth: false,
-                    height: '300px',
-                    autoHeight: false,
-                    title: 'Upload',
-                    closable: true,
-                    spinner: false,
-                    closeByBackdrop: true,
-                    closeByKeyboard: false,
-                    cssClass: 'laravel-explorer input-dialog',
-                    onShow: function(uploadDialogRef) {
-                        uploadDialogRef.getModalBody().addClass('dropzone').dropzone({
-                            url: mergeUrl(_this.options.baseUrl, 'file/upload'),
-                            uploadMultiple: false,
-                            parallelUploads: 1,
-                            accept: function(file, done) {
-                                done();
-                            }, sending: function(file, dzXHR, formData) {
-                                if (uploadCount == 0) {
-                                    // disable close button befor first file begins to upload
-                                    uploadDialogRef.set('closable', false).getButton('btn-close').prop('disabled', true);
-                                }
-
-                                // add csrfToken to form
-                                formData.append('_token', _this.options.csrfToken);
-                            }, success: function(file, result) {
-                                // success
-                                uploadCount++;
-                            }, error: function(file, message, dzXHR) {
-                                // let also dropzone to handle the message
-                                this.defaultOptions.error(file, 'An error occured! (' + file.name + ')');
-
-                                // no success
-                                alert(_this, mainDialogRef, 'danger', message);
-                            }, queuecomplete: function() {
-                                // enable close button
-                                uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
-                            },
-                        });
-                    },
-                    buttons: [{
-                        id: 'btn-close',
-                        label: 'Close',
-                        cssClass: 'btn-primary',
-                        action: function(uploadDialogRef) {
-                            // call refresh
-                            if (uploadCount) {
-                                refresh(_this, mainDialogRef);
-                            }
-
-                            // close the dialog
-                            uploadDialogRef.close();
-                        },
-                    }],
-                });
+                // open upload dialog
+                showUpload(_this, mainDialogRef);
             });
 
             // map navigation back button
@@ -1086,12 +1092,24 @@
                 // override ctrl+a to select all
                 $(document).keydown(function(e) {
                     if (e.ctrlKey && e.keyCode == 65) {
-                        // prevent event pass
+                        // prevent event default
                         e.preventDefault();
 
                         // select all
                         $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').addClass('selected');
                     }
+                });
+
+                // open upload dialog on file drag
+                $(mainDialogRef.getModalBody()).on('dragenter', function(e) {
+                    // prevent event default
+                    e.preventDefault();
+
+                    // stop event propagation (prevent bubbling up the DOM tree)
+                    e.stopPropagation();
+
+                    // open upload dialog
+                    showUpload(_this, mainDialogRef);
                 });
 
                 // disable buttons
@@ -1104,6 +1122,9 @@
             onHide: function(mainDialogRef) {
             },
             onHidden: function(mainDialogRef) {
+                // unsubscribe from dragenter
+                $(mainDialogRef.getModalBody()).off('dragenter');
+
                 // unsubscribe keydown event
                 $(document).unbind('keydown');
             },
