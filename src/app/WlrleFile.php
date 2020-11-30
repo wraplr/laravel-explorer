@@ -1,10 +1,10 @@
 <?php
 
-namespace WrapLr\LaravelExplorer\App;
+namespace Wraplr\LaravelExplorer\App;
 
 use Storage;
 use Illuminate\Database\Eloquent\Model;
-use WrapLr\LaravelExplorer\App\Http\Helpers\Image;
+use Wraplr\LaravelExplorer\App\Helpers\Image;
 
 class WlrleFile extends Model
 {

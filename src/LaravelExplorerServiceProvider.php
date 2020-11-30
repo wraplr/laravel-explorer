@@ -1,6 +1,6 @@
 <?php
 
-namespace WrapLr\LaravelExplorer;
+namespace Wraplr\LaravelExplorer;
 
 use Illuminate\Support\ServiceProvider;
 

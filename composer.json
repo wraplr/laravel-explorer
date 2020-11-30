@@ -14,13 +14,13 @@
     },
     "autoload": {
         "psr-4": {
-            "WrapLr\\LaravelExplorer\\": "src/"
+            "Wraplr\\LaravelExplorer\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "WrapLr\\LaravelExplorer\\LaravelExplorerServiceProvider"
+                "Wraplr\\LaravelExplorer\\LaravelExplorerServiceProvider"
             ]
         },
         "aliases": {
