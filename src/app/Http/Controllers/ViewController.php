@@ -1,11 +1,11 @@
 <?php
 
-namespace WrapLr\LaravelExplorer\App\Http\Controllers;
+namespace Wraplr\LaravelExplorer\App\Http\Controllers;
 
 use Redirect;
-use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\Http\Helpers\Image;
-use WrapLr\LaravelExplorer\App\WlrleFile;
+use Wraplr\LaravelExplorer\App\Helpers\Image;
+use Wraplr\LaravelExplorer\App\Http\Controllers\BaseController;
+use Wraplr\LaravelExplorer\App\WlrleFile;
 
 class ViewController extends BaseController
 {

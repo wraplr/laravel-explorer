@@ -1,12 +1,12 @@
 <?php
 
-namespace WrapLr\LaravelExplorer\App\Http\Controllers;
+namespace Wraplr\LaravelExplorer\App\Http\Controllers;
 
 use Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use WrapLr\LaravelExplorer\App\Http\Controllers\BaseController;
-use WrapLr\LaravelExplorer\App\WlrleDirectory;
+use Wraplr\LaravelExplorer\App\Http\Controllers\BaseController;
+use Wraplr\LaravelExplorer\App\WlrleDirectory;
 
 class DirectoryController extends BaseController
 {

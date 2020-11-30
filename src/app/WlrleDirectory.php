@@ -1,6 +1,6 @@
 <?php
 
-namespace WrapLr\LaravelExplorer\App;
+namespace Wraplr\LaravelExplorer\App;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +17,7 @@ class WlrleDirectory extends Model
 
     public function files()
     {
-        return $this->hasMany('WrapLr\LaravelExplorer\App\WlrleFile', 'directory_id')->orderBy('name', 'asc');
+        return $this->hasMany('Wraplr\LaravelExplorer\App\WlrleFile', 'directory_id')->orderBy('name', 'asc');
     }
 
     public function parent()

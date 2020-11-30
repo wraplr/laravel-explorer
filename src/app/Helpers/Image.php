@@ -1,6 +1,6 @@
 <?php
 
-namespace WrapLr\LaravelExplorer\App\Http\Helpers;
+namespace Wraplr\LaravelExplorer\App\Helpers;
 
 class Image
 {
