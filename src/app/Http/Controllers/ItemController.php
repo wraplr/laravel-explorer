@@ -27,10 +27,10 @@ class ItemController extends BaseController
         }
 
         // update copy directories list
-        Session::put(config('wlrle.url_prefix').'.copy.directories', (isset($request->items['directories']) ? $request->items['directories'] : []));
+        Session::put(config('wlrle.url_prefix').'.copy.directories', (isset($request->items['directory']) ? $request->items['directory'] : []));
 
         // update copy files list
-        Session::put(config('wlrle.url_prefix').'.copy.files', (isset($request->items['files']) ? $request->items['files'] : []));
+        Session::put(config('wlrle.url_prefix').'.copy.files', (isset($request->items['file']) ? $request->items['file'] : []));
 
         // reset cut directories list
         Session::put(config('wlrle.url_prefix').'.cut.directories', []);
@@ -63,10 +63,10 @@ class ItemController extends BaseController
         Session::put(config('wlrle.url_prefix').'.copy.files', []);
 
         // update cut directories list
-        Session::put(config('wlrle.url_prefix').'.cut.directories', (isset($request->items['directories']) ? $request->items['directories'] : []));
+        Session::put(config('wlrle.url_prefix').'.cut.directories', (isset($request->items['directory']) ? $request->items['directory'] : []));
 
         // update cut files list
-        Session::put(config('wlrle.url_prefix').'.cut.files', (isset($request->items['files']) ? $request->items['files'] : []));
+        Session::put(config('wlrle.url_prefix').'.cut.files', (isset($request->items['file']) ? $request->items['file'] : []));
 
         return response()->json([
             'paste' => $this->getPasteCount(),
@@ -303,8 +303,8 @@ class ItemController extends BaseController
         }
 
         // delete directories, if any
-        if (isset($request->items['directories'])) {
-            foreach ($request->items['directories'] as $directoryId) {
+        if (isset($request->items['directory'])) {
+            foreach ($request->items['directory'] as $directoryId) {
                 // get selected directory
                 $directory = WlrleDirectory::whereId($directoryId)->first();
 
@@ -334,8 +334,8 @@ class ItemController extends BaseController
         }
 
         // delete files, if any
-        if (isset($request->items['files'])) {
-            foreach ($request->items['files'] as $fileId) {
+        if (isset($request->items['file'])) {
+            foreach ($request->items['file'] as $fileId) {
                 // get selected file
                 $file = WlrleFile::whereId($fileId)->first();
 
@@ -383,8 +383,8 @@ class ItemController extends BaseController
         $errors = [];
 
         // rename directories, if any
-        if (isset($request->items['directories'])) {
-            foreach ($request->items['directories'] as $directoryId => $directoryName) {
+        if (isset($request->items['directory'])) {
+            foreach ($request->items['directory'] as $directoryId => $directoryName) {
                 // get selected directory
                 $directory = WlrleDirectory::whereId($directoryId)->first();
 
@@ -407,8 +407,8 @@ class ItemController extends BaseController
         }
 
         // rename files, if any
-        if (isset($request->items['files'])) {
-            foreach ($request->items['files'] as $fileId => $fileName) {
+        if (isset($request->items['file'])) {
+            foreach ($request->items['file'] as $fileId => $fileName) {
                 // get selected file
                 $file = WlrleFile::whereId($fileId)->first();
 

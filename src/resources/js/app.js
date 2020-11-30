@@ -535,8 +535,8 @@
             data: {
                 _token: _this.options.csrfToken,
                 items: {
-                    directories: directories,
-                    files: files,
+                    directory: directories,
+                    file: files,
                 },
             },
         }).done(function(result) {
@@ -566,8 +566,8 @@
             data: {
                 _token: _this.options.csrfToken,
                 items: {
-                    directories: directories,
-                    files: files,
+                    directory: directories,
+                    file: files,
                 },
             },
         }).done(function(result) {
@@ -622,8 +622,8 @@
                 _token: _this.options.csrfToken,
                 _method: 'DELETE',
                 items: {
-                    directories: directories,
-                    files: files,
+                    directory: directories,
+                    file: files,
                 },
             },
         }).done(function(result) {
@@ -650,8 +650,8 @@
                 _token: _this.options.csrfToken,
                 _method: 'PATCH',
                 items: {
-                    directories: directoryNames,
-                    files: fileNames,
+                    directory: directoryNames,
+                    file: fileNames,
                 },
             },
         }).done(function(result) {
