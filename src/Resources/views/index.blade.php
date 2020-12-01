@@ -1,4 +1,4 @@
-<div class="container-fluid laravel-explorer">
+<div class="container-fluid wlrle">
     <div class="alerts"></div>
     <div class="btn-toolbar mb-1" role="toolbar">
         <div class="btn-group mr-2" role="group">
@@ -51,7 +51,7 @@
         <div class="btn-group mr-2" role="group">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    @include('laravel-explorer::bread')
+                    @include('wlrle::bread')
                 </ol>
             </nav>
         </div>
@@ -62,6 +62,6 @@
         </div>
     </div>
     <div class="row content">
-        @include('laravel-explorer::items')
+        @include('wlrle::items')
     </div>
 </div>

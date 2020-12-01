@@ -75,7 +75,7 @@
             var alertId = _this.alertCount++;
 
             // display the alert
-            $(mainDialogRef.getModalBody()).find('.laravel-explorer .alerts').append('<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert" data-alert-id="' + alertId + '">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            $(mainDialogRef.getModalBody()).find('.wlrle .alerts').append('<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert" data-alert-id="' + alertId + '">' + message + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
 
             // call alert added
             if ($.isFunction(onAlertAdded)) {
@@ -91,16 +91,16 @@
 
     function getCurrentWorkingDirectory(_this, mainDialogRef)
     {
-        return parseInt($(mainDialogRef.getModalBody()).find('.laravel-explorer nav[aria-label=breadcrumb] .breadcrumb-item span, a').last().attr('data-id'));
+        return parseInt($(mainDialogRef.getModalBody()).find('.wlrle nav[aria-label=breadcrumb] .breadcrumb-item span, a').last().attr('data-id'));
     }
 
     function enableButtons(_this, mainDialogRef)
     {
         // selected directory count
-        var selectedDirectoryCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory .square.selected').length;
+        var selectedDirectoryCount = $(mainDialogRef.getModalBody()).find('.wlrle .content .item.directory .square.selected').length;
 
         // selected file count
-        var selectedFileCount = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file .square.selected').length;
+        var selectedFileCount = $(mainDialogRef.getModalBody()).find('.wlrle .content .item.file .square.selected').length;
 
         // disable/enable copy button
         $(mainDialogRef.getModalBody()).find('button[data-request=copy]').prop('disabled', !(selectedDirectoryCount + selectedFileCount));
@@ -121,19 +121,19 @@
     function bindToItems(_this, mainDialogRef)
     {
         // change directory, breadcrumb
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .breadcrumb .breadcrumb-item a').on('click', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .breadcrumb .breadcrumb-item a').on('click', function() {
             changeDirectory(_this, mainDialogRef, $(this).attr('data-id'), 'breadcrumb');
         });
 
         // change directory, content directories
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory .square').on('dblclick', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item.directory .square').on('dblclick', function() {
             changeDirectory(_this, mainDialogRef, $(this).closest('.item').attr('data-id'), 'change');
         });
 
         // select item(s)
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').on('click', function(e) {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').on('click', function(e) {
             if (!e.ctrlKey) {
-                $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+                $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').removeClass('selected');
             }
 
             if (e.ctrlKey) {
@@ -147,22 +147,22 @@
 
         // deselect item(s)
         $(mainDialogRef.getModalBody()).on('click', function(e) {
-            var exceptions = $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square, .laravel-explorer .btn-toolbar button');
+            var exceptions = $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square, .wlrle .btn-toolbar button');
 
             if (!exceptions.is(e.target) && exceptions.has(e.target).length == 0) {
-                $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+                $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').removeClass('selected');
             }
 
             enableButtons(_this, mainDialogRef);
         });
 
         // choose file
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file .square').on('dblclick', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item.file .square').on('dblclick', function() {
             // store selected item
             var selectedSquare = this;
 
             // deselect other items, but this
-            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').each(function(i, square) {
+            $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').each(function(i, square) {
                 if (square != selectedSquare) {
                     $(square).removeClass('selected');
                 }
@@ -182,7 +182,7 @@
         var initName = null;
 
         // enter the input in edit mode if double click happens
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('dblclick', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .name input').on('dblclick', function() {
             // save name
             initName = $(this).val();
 
@@ -191,7 +191,7 @@
         });
 
         // rename item if focus is lost
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('blur', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .name input').on('blur', function() {
             // store input
             var input = $(this);
 
@@ -246,7 +246,7 @@
         });
 
         // also rename if enter pressed
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name input').on('keydown', function(e) {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .name input').on('keydown', function(e) {
             // enter pressed
             if (e.which == 13) {
                 // remove focus, to do the rename
@@ -255,7 +255,7 @@
         });
 
         // rename item (click to edit button)
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .name button').on('click', function() {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .name button').on('click', function() {
             // find main item
             var item = $(this).closest('.item');
 
@@ -273,12 +273,12 @@
                 spinner: false,
                 closeByBackdrop: true,
                 closeByKeyboard: true,
-                cssClass: 'laravel-explorer input-dialog',
+                cssClass: 'wlrle input-dialog',
                 onShow: function(renameItemDialogRef) {
-                    renameItemDialogRef.getModalBody().html('<div class="form-group row"><label for="laravel-explorer-item-name" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-item-name" value="' + input.val() + '" /></div></div>');
+                    renameItemDialogRef.getModalBody().html('<div class="form-group row"><label for="wlrle-item-name" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="wlrle-item-name" value="' + input.val() + '" /></div></div>');
                 },
                 onShown: function(renameItemDialogRef) {
-                    renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').focus();
+                    renameItemDialogRef.getModalBody().find('#wlrle-item-name').focus();
                 },
                 buttons: [{
                     id: 'btn-ok',
@@ -288,13 +288,13 @@
                         // call rename
                         if (item.hasClass('directory')) {
                             // rename directory
-                            renameDirectory(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
+                            renameDirectory(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#wlrle-item-name').val(), function(name) {
                                 // renamed
                                 $(input).val(name);
                             });
                         } else if (item.hasClass('file')) {
                             // rename file
-                            renameFile(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#laravel-explorer-item-name').val(), function(name) {
+                            renameFile(_this, mainDialogRef, item.attr('data-id'), renameItemDialogRef.getModalBody().find('#wlrle-item-name').val(), function(name) {
                                 // renamed
                                 $(input).val(name);
                             });
@@ -334,7 +334,7 @@
     {
         var selectedDirectories = [];
 
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item').each(function(index, item) {
             if ($(item).find('.square').hasClass('selected')) {
                 if ($(item).hasClass('directory')) {
                     selectedDirectories.push(parseInt($(item).attr('data-id')));
@@ -349,7 +349,7 @@
     {
         var selectedFiles = [];
 
-        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item').each(function(index, item) {
+        $(mainDialogRef.getModalBody()).find('.wlrle .content .item').each(function(index, item) {
             if ($(item).find('.square').hasClass('selected')) {
                 if ($(item).hasClass('file')) {
                     selectedFiles.push(parseInt($(item).attr('data-id')));
@@ -550,7 +550,7 @@
             loaded(_this, mainDialogRef);
 
             // deselect all the items
-            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+            $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').removeClass('selected');
         });
     }
 
@@ -581,7 +581,7 @@
             loaded(_this, mainDialogRef);
 
             // deselect all the items
-            $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').removeClass('selected');
+            $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').removeClass('selected');
         });
     }
 
@@ -679,7 +679,7 @@
             spinner: false,
             closeByBackdrop: true,
             closeByKeyboard: false,
-            cssClass: 'laravel-explorer input-dialog',
+            cssClass: 'wlrle input-dialog',
             onShow: function(uploadDialogRef) {
                 uploadDialogRef.getModalBody().addClass('dropzone').dropzone({
                     url: mergeUrl(_this.options.baseUrl, 'file/upload'),
@@ -775,7 +775,7 @@
 
             // map selectall button
             $(mainDialogRef.getModalBody()).find('button[data-request=selectall]').on('click', function() {
-                $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').addClass('selected');
+                $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').addClass('selected');
             });
 
             // map delete items button
@@ -796,7 +796,7 @@
                         spinner: false,
                         closeByBackdrop: true,
                         closeByKeyboard: true,
-                        cssClass: 'laravel-explorer input-dialog',
+                        cssClass: 'wlrle input-dialog',
                         onShow: function(deleteItemsDialogRef) {
                             deleteItemsDialogRef.getModalBody().html('Do you really want to delete the ' + (directories.length + files.length) + ' selected ' + (directories.length > 0 ? 'directorie(s)' : '') + (directories.length && files.length > 0 ? '/' : '') + (files.length > 0 ? 'file(s)' : '') + '?');
                         },
@@ -850,19 +850,19 @@
                         spinner: false,
                         closeByBackdrop: true,
                         closeByKeyboard: true,
-                        cssClass: 'laravel-explorer input-dialog',
+                        cssClass: 'wlrle input-dialog',
                         onShow: function(editItemsDialogRef) {
                             // html for inputs
                             var html = '';
 
                             // create inputs for directories
                             $.each(directories, function(i, directoryId) {
-                                html += '<div class="form-group row"><label for="laravel-explorer-directory-name-' + directoryId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-directory-name-' + directoryId + '" data-id="' + directoryId + '" value="' + $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.directory[data-id=' + directoryId + '] input').val() + '" /></div></div>'
+                                html += '<div class="form-group row"><label for="wlrle-directory-name-' + directoryId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="wlrle-directory-name-' + directoryId + '" data-id="' + directoryId + '" value="' + $(mainDialogRef.getModalBody()).find('.wlrle .content .item.directory[data-id=' + directoryId + '] input').val() + '" /></div></div>'
                             });
 
                             // create inputs for files
                             $.each(files, function(i, fileId) {
-                                html += '<div class="form-group row"><label for="laravel-explorer-file-name-' + fileId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-file-name-' + fileId + '" data-id="' + fileId + '" value="' + $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file[data-id=' + fileId + '] input').val() + '" /></div></div>'
+                                html += '<div class="form-group row"><label for="wlrle-file-name-' + fileId + '" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="wlrle-file-name-' + fileId + '" data-id="' + fileId + '" value="' + $(mainDialogRef.getModalBody()).find('.wlrle .content .item.file[data-id=' + fileId + '] input').val() + '" /></div></div>'
                             });
 
                             // update html
@@ -877,12 +877,12 @@
                                 var directoryNames = {}, fileNames = {};
 
                                 // directory names
-                                editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-directory-name-').each(function() {
+                                editItemsDialogRef.getModalBody().find('input[id^=wlrle-directory-name-').each(function() {
                                     directoryNames[$(this).attr('data-id')] = $(this).val();
                                 });
 
                                 // file names
-                                editItemsDialogRef.getModalBody().find('input[id^=laravel-explorer-file-name-').each(function() {
+                                editItemsDialogRef.getModalBody().find('input[id^=wlrle-file-name-').each(function() {
                                     fileNames[$(this).attr('data-id')] = $(this).val();
                                 });
 
@@ -925,12 +925,12 @@
                     spinner: false,
                     closeByBackdrop: true,
                     closeByKeyboard: true,
-                    cssClass: 'laravel-explorer input-dialog',
+                    cssClass: 'wlrle input-dialog',
                     onShow: function(createDirectoryDialogRef) {
-                        createDirectoryDialogRef.getModalBody().html('<div class="form-group row"><label for="laravel-explorer-folder-name" class="col-3">Folder name</label><div class="col-9"><input type="text" class="form-control" id="laravel-explorer-folder-name" /></div></div>');
+                        createDirectoryDialogRef.getModalBody().html('<div class="form-group row"><label for="wlrle-folder-name" class="col-3">Folder name</label><div class="col-9"><input type="text" class="form-control" id="wlrle-folder-name" /></div></div>');
                     },
                     onShown: function(createDirectoryDialogRef) {
-                        createDirectoryDialogRef.getModalBody().find('#laravel-explorer-folder-name').focus();
+                        createDirectoryDialogRef.getModalBody().find('#wlrle-folder-name').focus();
                     },
                     buttons: [{
                         id: 'btn-ok',
@@ -938,7 +938,7 @@
                         cssClass: 'btn-primary',
                         action: function(createDirectoryDialogRef) {
                             // call createDirectory
-                            createDirectory(_this, mainDialogRef, createDirectoryDialogRef.getModalBody().find('#laravel-explorer-folder-name').val());
+                            createDirectory(_this, mainDialogRef, createDirectoryDialogRef.getModalBody().find('#wlrle-folder-name').val());
 
                             // close the dialog
                             createDirectoryDialogRef.close();
@@ -1053,7 +1053,7 @@
                     // get selected files
                     var files = [];
 
-                    $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item.file').each(function(index, item) {
+                    $(mainDialogRef.getModalBody()).find('.wlrle .content .item.file').each(function(index, item) {
                         if ($(item).find('.square').hasClass('selected')) {
                             files.push(parseInt($(item).attr('data-id')));
                         }
@@ -1096,7 +1096,7 @@
                         e.preventDefault();
 
                         // select all
-                        $(mainDialogRef.getModalBody()).find('.laravel-explorer .content .item .square').addClass('selected');
+                        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').addClass('selected');
                     }
                 });
 

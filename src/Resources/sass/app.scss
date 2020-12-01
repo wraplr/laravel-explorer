@@ -1,12 +1,4 @@
-@mixin transform($transforms) {
-    -moz-transform: $transforms;
-    -o-transform: $transforms;
-    -ms-transform: $transforms;
-    -webkit-transform: $transforms;
-    transform: $transforms;
-}
-
-.laravel-explorer {
+.wlrle {
     .alerts {
         width: 100%;
 

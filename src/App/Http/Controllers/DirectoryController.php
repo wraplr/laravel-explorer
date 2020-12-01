@@ -69,8 +69,8 @@ class DirectoryController extends BaseController
             'back' => (count($backList) > 1 ? $backList[count($backList) - 2] : 0),
             'forward' => (count($forwardList) > 0 ? $forwardList[count($forwardList) - 1] : 0),
             'up' => ($currentDirectory->parent ? $currentDirectory->parent->id : 0),
-            'content' => view('laravel-explorer::items', compact('directoryList', 'fileList'))->render(),
-            'breadcrumb' => view('laravel-explorer::bread', compact('breadcrumbDirs'))->render(),
+            'content' => view('wlrle::items', compact('directoryList', 'fileList'))->render(),
+            'breadcrumb' => view('wlrle::bread', compact('breadcrumbDirs'))->render(),
             'fileInfoList' => $this->toFileInfoList($fileList),
         ], 200);
     }
@@ -113,7 +113,7 @@ class DirectoryController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'content' => view('laravel-explorer::items', compact('directoryList', 'fileList'))->render(),
+            'content' => view('wlrle::items', compact('directoryList', 'fileList'))->render(),
         ], 200);
     }
 
