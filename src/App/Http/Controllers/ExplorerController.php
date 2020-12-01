@@ -58,7 +58,7 @@ class ExplorerController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'content' => view('laravel-explorer::index', compact('paste', 'back', 'forward', 'up', 'breadcrumbDirs', 'directoryList', 'fileList'))->render(),
+            'content' => view('wlrle::index', compact('paste', 'back', 'forward', 'up', 'breadcrumbDirs', 'directoryList', 'fileList'))->render(),
             'fileInfoList' => $this->toFileInfoList($fileList),
         ], 200);
     }
@@ -80,7 +80,7 @@ class ExplorerController extends BaseController
         $fileList = $currentDirectory->files;
 
         return response()->json([
-            'content' => view('laravel-explorer::items', compact('directoryList', 'fileList'))->render(),
+            'content' => view('wlrle::items', compact('directoryList', 'fileList'))->render(),
             'fileInfoList' => $this->toFileInfoList($fileList),
         ], 200);
     }

@@ -29,7 +29,7 @@ class LaravelExplorerServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Database/migrations');
 
         // load views
-        $this->loadViewsFrom(__DIR__.'/Resources/views', 'laravel-explorer');
+        $this->loadViewsFrom(__DIR__.'/Resources/views', 'wlrle');
 
         // register routes
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
