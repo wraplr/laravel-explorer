@@ -1091,15 +1091,64 @@
             onShow: function(mainDialogRef) {
                 // override ctrl+a to select all
                 $(document).keydown(function(e) {
-                    if (e.ctrlKey && e.keyCode == 65) {
-                        // prevent event default
-                        e.preventDefault();
+                    if (e.ctrlKey) {
+                        switch (e.keyCode) {
+                        case 65: { // ctrl+a - select all
+                            // prevent event default
+                            e.preventDefault();
 
-                        // select all
-                        $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').addClass('selected');
+                            // select all
+                            $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').addClass('selected');
 
-                        // buttons
-                        enableButtons(_this, mainDialogRef);
+                            // enable buttons
+                            enableButtons(_this, mainDialogRef);
+
+                            // exit
+                            break;
+                        }
+                        case 67: { // ctrl+c - copy
+                            // prevent event default
+                            e.preventDefault();
+
+                            // get selected directories/files
+                            var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
+
+                            // check selected items count
+                            if (directories.length + files.length > 0) {
+                                // call copy items
+                                copyItems(_this, mainDialogRef, directories, files);
+                            }
+
+                            // exit
+                            break;
+                        }
+                        case 86: { // ctrl+v - paste
+                            // prevent event default
+                            e.preventDefault();
+
+                            // call paste items
+                            pasteItems(_this, mainDialogRef);
+
+                            // exit
+                            break;
+                        }
+                        case 88: { // ctrl+x - cut
+                            // prevent event default
+                            e.preventDefault();
+
+                            // get selected directories/files
+                            var directories = getSelectedDirectories(mainDialogRef), files = getSelectedFiles(mainDialogRef);
+
+                            // check selected items count
+                            if (directories.length + files.length > 0) {
+                                // call cut items
+                                cutItems(_this, mainDialogRef, directories, files);
+                            }
+
+                            // exit
+                            break;
+                        }
+                        }
                     }
                 });
 
