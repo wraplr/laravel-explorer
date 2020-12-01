@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Url Prefix
@@ -37,15 +38,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Upload Directory
+    | Storage Directory
     |--------------------------------------------------------------------------
     |
-    | The folder use to store files, relative to storage/app/public.
+    | The folder used to store files, relative to storage/app/public.
     | Don't forget to run 'php artisan storage:link'.
     |
     */
 
-    'upload_directory' => 'files',
+    'storage_directory' => 'files',
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Hashid
+    |--------------------------------------------------------------------------
+    |
+    | Method to created a unique hash id based on filename's id for each file.
+    | We use this hashid for the filename to store it physically.
+    | By default we use a simple base_convert from decimal to base 36.
+    |
+    */
+
+    'file_hashid' => function($id) {
+        return base_convert($id, 10, 36);
+    },
 
     /*
     |--------------------------------------------------------------------------
@@ -160,4 +176,5 @@ return [
             'quality' => 80,
         ],
     ],
+
 ];

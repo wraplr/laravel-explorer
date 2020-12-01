@@ -15,8 +15,9 @@ class CreateWlrleFilesTable extends Migration
     {
         Schema::create('wlrle_files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('path');
             $table->string('name');
+            $table->string('path');
+            $table->string('file');
             $table->string('extension');
             $table->string('mime_type');
             $table->integer('size');

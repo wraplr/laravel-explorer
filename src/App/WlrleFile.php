@@ -10,9 +10,10 @@ class WlrleFile extends Model
 {
     protected $fillable = [
         'name',
-        'mime_type',
         'path',
+        'file',
         'extension',
+        'mime_type',
         'size',
     ];
 
@@ -35,7 +36,7 @@ class WlrleFile extends Model
 
     public function viewPath($viewName)
     {
-        return Storage::disk('public')->path(config('wlrle.upload_directory')).'/'.$viewName.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+        return Storage::disk('public')->path(config('wlrle.storage_directory')).'/'.$viewName.'/'.$this->path.'/'.$this->file.($this->extension == '' ? '' : '.').$this->extension;
     }
 
     public function viewUrl($viewName)
@@ -45,23 +46,24 @@ class WlrleFile extends Model
         }
 
         if (config('wlrle.transform_path_to_name')) {
-            return Storage::url(config('wlrle.upload_directory')).'/'.$viewName.'/'.str_replace('/', '', $this->path).base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.storage_directory')).'/'.$viewName.'/'.str_replace('/', '', $this->path).$this->file.($this->extension == '' ? '' : '.').$this->extension;
         } else {
-            return Storage::url(config('wlrle.upload_directory')).'/'.$viewName.'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.storage_directory')).'/'.$viewName.'/'.$this->path.'/'.$this->file.($this->extension == '' ? '' : '.').$this->extension;
         }
     }
 
     public function storagePath()
     {
-        return Storage::disk('public')->path(config('wlrle.upload_directory')).'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+        return Storage::disk('public')->path(config('wlrle.storage_directory')).'/'.$this->path.'/'.$this->file.($this->extension == '' ? '' : '.').$this->extension;
     }
 
     public function storageUrl()
     {
         if (config('wlrle.transform_path_to_name')) {
-            return Storage::url(config('wlrle.upload_directory')).'/'.str_replace('/', '', $this->path).base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.storage_directory')).'/'.str_replace('/', '', $this->path).$this->file.($this->extension == '' ? '' : '.').$this->extension;
         } else {
-            return Storage::url(config('wlrle.upload_directory')).'/'.$this->path.'/'.base_convert($this->id, 10, 36).($this->extension == '' ? '' : '.').$this->extension;
+            return Storage::url(config('wlrle.storage_directory')).'/'.$this->path.'/'.$this->file.($this->extension == '' ? '' : '.').$this->extension;
         }
     }
 }
+    
