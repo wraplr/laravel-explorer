@@ -32,11 +32,11 @@ class FileController extends BaseController
             ], 400);
         }
 
-        // upload path, relative to base_directory/upload_directory
+        // storage path, relative to base_directory/storage_directory
         $path = Carbon::now()->format('Y/m/d');
 
         // base directory
-        $base = Storage::disk('public')->path(config('wlrle.upload_directory'));
+        $base = Storage::disk('public')->path(config('wlrle.storage_directory'));
 
         // full path
         $full = $base.'/'.$path;
@@ -55,9 +55,10 @@ class FileController extends BaseController
         // create model
         $wlrleFile = new WlrleFile([
             'name' => $fileName,
-            'mime_type' => mime_content_type($file->getPathName()),
             'path' => $path,
+            'file' => '',
             'extension' => $file->getClientOriginalExtension(),
+            'mime_type' => mime_content_type($file->getPathName()),
             'size' => $file->getSize(),
         ]);
 
@@ -65,8 +66,11 @@ class FileController extends BaseController
             // create new file in database
             $currentDirectory->files()->save($wlrleFile);
 
+            // create unique hashid for file
+            $wlrleFile->file = config('wlrle.file_hashid')($wlrleFile->id);
+
             // new phisical name
-            $storageName = base_convert($wlrleFile->id, 10, 36).($file->getClientOriginalExtension() == '' ? '' : '.').$file->getClientOriginalExtension();
+            $storageName = $wlrleFile->file.($wlrleFile->extension == '' ? '' : '.').$wlrleFile->extension;
 
             // move file to path
             if (!$file->move($full, $storageName)) {
@@ -78,6 +82,9 @@ class FileController extends BaseController
                     'message' => 'Server error (can not move the file from temp folder to '.$full.'/'.$storageName.')!',
                 ], 400);
             }
+
+            // save file's hashid
+            $wlrleFile->save();
         } else {
             // move to temp path
             if ($file->move($base, $file->getFilename())) {
@@ -88,7 +95,7 @@ class FileController extends BaseController
                 unlink($temp);
             }
 
-            // return invalid mim type error
+            // return invalid mime type error
             return response()->json([
                 'message' => 'Invalid mime type (<strong>'.$file->getClientOriginalName().'</strong>: '.$wlrleFile->mime_type.')!',
             ], 400);

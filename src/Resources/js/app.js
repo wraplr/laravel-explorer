@@ -1097,6 +1097,9 @@
 
                         // select all
                         $(mainDialogRef.getModalBody()).find('.wlrle .content .item .square').addClass('selected');
+
+                        // buttons
+                        enableButtons(_this, mainDialogRef);
                     }
                 });
 

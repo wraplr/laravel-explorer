@@ -11,11 +11,8 @@ class ViewController extends BaseController
 {
     public function create($viewName, $fileName)
     {
-        // get file id
-        $fileId = base_convert(pathinfo($fileName, PATHINFO_FILENAME), 36, 10);
-
         // get file
-        $file = WlrleFile::whereId($fileId)->first();
+        $file = WlrleFile::whereFile(pathinfo($fileName, PATHINFO_FILENAME))->first();
 
         // no db entry?
         if (!$file) {
