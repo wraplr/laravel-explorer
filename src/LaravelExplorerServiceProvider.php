@@ -23,20 +23,20 @@ class LaravelExplorerServiceProvider extends ServiceProvider
     public function boot()
     {
         // load helpers
-        $this->loadHelpersFrom(__DIR__.'/app/Helpers');
+        $this->loadHelpersFrom(__DIR__.'/App/Helpers');
 
         // load migrations
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/Database/migrations');
 
         // load views
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'laravel-explorer');
+        $this->loadViewsFrom(__DIR__.'/Resources/views', 'laravel-explorer');
 
         // register routes
-        $this->loadRoutesFrom(__DIR__.'/routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         // publish config file
         $this->publishes([
-            __DIR__.'/config/wlrle.php' => config_path('wlrle.php'),
+            __DIR__.'/Config/wlrle.php' => config_path('wlrle.php'),
         ]);
     }
 
