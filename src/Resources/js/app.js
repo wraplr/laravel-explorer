@@ -26,6 +26,9 @@
         // reference to main dialog
         this.mainDialog = null;
 
+        // check active dialog for keydown event
+        this.activeDialog = null;
+
         // actual file info list
         this.fileInfoList = [];
 
@@ -275,10 +278,18 @@
                 closeByKeyboard: true,
                 cssClass: 'wlrle input-dialog',
                 onShow: function(renameItemDialogRef) {
+                    // set active dialog
+                    _this.activeDialog = renameItemDialogRef;
+
+                    // add input
                     renameItemDialogRef.getModalBody().html('<div class="form-group row"><label for="wlrle-item-name" class="col-3">Rename to</label><div class="col-9"><input type="text" class="form-control" id="wlrle-item-name" value="' + input.val() + '" /></div></div>');
                 },
                 onShown: function(renameItemDialogRef) {
                     renameItemDialogRef.getModalBody().find('#wlrle-item-name').focus();
+                },
+                onHidden: function(renameItemDialogRef) {
+                    // set active dialog
+                    _this.activeDialog = mainDialogRef;
                 },
                 buttons: [{
                     id: 'btn-ok',
@@ -681,6 +692,10 @@
             closeByKeyboard: false,
             cssClass: 'wlrle input-dialog',
             onShow: function(uploadDialogRef) {
+                // set active dialog
+                _this.activeDialog = uploadDialogRef;
+
+                // add dropzone's class to modal body
                 uploadDialogRef.getModalBody().addClass('dropzone').dropzone({
                     url: mergeUrl(_this.options.baseUrl, 'file/upload'),
                     uploadMultiple: false,
@@ -709,6 +724,10 @@
                         uploadDialogRef.set('closable', true).getButton('btn-close').prop('disabled', false);
                     },
                 });
+            },
+            onHidden: function(uploadDialogRef) {
+                // set active dialog
+                _this.activeDialog = mainDialogRef;
             },
             buttons: [{
                 id: 'btn-close',
@@ -798,7 +817,15 @@
                         closeByKeyboard: true,
                         cssClass: 'wlrle input-dialog',
                         onShow: function(deleteItemsDialogRef) {
+                            // set active dialog
+                            _this.activeDialog = deleteItemsDialogRef;
+
+                            // set html
                             deleteItemsDialogRef.getModalBody().html('Do you really want to delete the ' + (directories.length + files.length) + ' selected ' + (directories.length > 0 ? 'directorie(s)' : '') + (directories.length && files.length > 0 ? '/' : '') + (files.length > 0 ? 'file(s)' : '') + '?');
+                        },
+                        onHidden: function(deleteItemsDialogRef) {
+                            // set active dialog
+                            _this.activeDialog = mainDialogRef;
                         },
                         buttons: (directories.length + files.length > 0) ? [{
                             id: 'btn-yes',
@@ -852,6 +879,9 @@
                         closeByKeyboard: true,
                         cssClass: 'wlrle input-dialog',
                         onShow: function(editItemsDialogRef) {
+                            // set active dialog
+                            _this.activeDialog = editItemsDialogRef;
+
                             // html for inputs
                             var html = '';
 
@@ -867,6 +897,10 @@
 
                             // update html
                             editItemsDialogRef.getModalBody().html(html);
+                        },
+                        onHidden: function(editItemsDialogRef) {
+                            // set active dialog
+                            _this.activeDialog = mainDialogRef;
                         },
                         buttons: (directories.length + files.length > 0) ? [{
                             id: 'btn-ok',
@@ -927,10 +961,18 @@
                     closeByKeyboard: true,
                     cssClass: 'wlrle input-dialog',
                     onShow: function(createDirectoryDialogRef) {
+                        // set active dialog
+                        _this.activeDialog = createDirectoryDialogRef;
+
+                        // add html
                         createDirectoryDialogRef.getModalBody().html('<div class="form-group row"><label for="wlrle-folder-name" class="col-3">Folder name</label><div class="col-9"><input type="text" class="form-control" id="wlrle-folder-name" /></div></div>');
                     },
                     onShown: function(createDirectoryDialogRef) {
                         createDirectoryDialogRef.getModalBody().find('#wlrle-folder-name').focus();
+                    },
+                    onHidden: function(createDirectoryDialogRef) {
+                        // set active dialog
+                        _this.activeDialog = mainDialogRef;
                     },
                     buttons: [{
                         id: 'btn-ok',
@@ -1089,8 +1131,17 @@
                 },
             }],
             onShow: function(mainDialogRef) {
+                // set active dialog
+                _this.activeDialog = mainDialogRef;
+
                 // override ctrl+a to select all
                 $(document).keydown(function(e) {
+                    // check active dialog
+                    if (_this.activeDialog != mainDialogRef) {
+                        return;
+                    }
+
+                    // check key
                     if (e.ctrlKey) {
                         switch (e.keyCode) {
                         case 65: { // ctrl+a - select all
@@ -1179,6 +1230,12 @@
 
                 // unsubscribe keydown event
                 $(document).unbind('keydown');
+
+                // set main dialog to null
+                _this.activeDialog = null;
+
+                // set active dialog to null
+                _this.activeDialog = null;
             },
         });
 
