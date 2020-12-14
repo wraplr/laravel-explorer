@@ -54,13 +54,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Method to created a unique hash id based on filename's id for each file.
-    | We use this hashid for the filename to store it physically.
-    | By default we use a simple base_convert from decimal to base 36.
+    | We use it for the filename to store it physically.
+    | By default we use the file's id, but you can convert it to a longer,
+    | unique hashid.
     |
     */
 
     'file_hashid' => function($id) {
-        return base_convert($id, 10, 36);
+        return $id;
     },
 
     /*
