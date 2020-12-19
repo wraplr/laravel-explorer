@@ -311,20 +311,6 @@ class Image
         $proportion = ($aspectRatioX / $aspectRatioY);
 
         if ($this->width() / $this->height() > $proportion) {
-            $width = (int)($this->height() * $proportion);
-            $height = $this->height();
-
-            $top = 0;
-            $left = 0;
-
-            if ($horizontalAlign == self::PAD_LEFT) {
-                $left = 0;
-            } else if ($horizontalAlign == self::PAD_RIGHT) {
-                $left = $this->width() - $width;
-            } else if ($horizontalAlign == self::PAD_CENTER) {
-                $left = (int)(($this->width() - $width) / 2);
-            }
-        } else {
             $width = $this->width();
             $height = (int)($this->width() / $proportion);
 
@@ -334,14 +320,28 @@ class Image
             if ($verticalAlign == self::PAD_TOP) {
                 $top = 0;
             } else if ($verticalAlign == self::PAD_BOTTOM) {
-                $top = $this->height() - $height;
+                $top = $height - $this->height();
             } else if ($verticalAlign == self::PAD_MIDDLE) {
-                $top = (int)(($this->height() - $height) / 2);
+                $top = (int)(($height - $this->height()) / 2);
+            }
+        } else {
+            $width = (int)($this->height() * $proportion);
+            $height = $this->height();
+
+            $top = 0;
+            $left = 0;
+
+            if ($horizontalAlign == self::PAD_LEFT) {
+                $left = 0;
+            } else if ($horizontalAlign == self::PAD_RIGHT) {
+                $left = $width - $this->width();
+            } else if ($horizontalAlign == self::PAD_CENTER) {
+                $left = (int)(($width - $this->width()) / 2);
             }
         }
 
         // create new image
-        if (($imageRes = imagecreatetruecolor($this->width(), $this->height())) === false) {
+        if (($imageRes = imagecreatetruecolor($width, $height)) === false) {
             return false;
         }
 
@@ -368,7 +368,7 @@ class Image
         imagecolordeallocate($imageRes, $color);
 
         // copy image
-        if (imagecopyresampled($imageRes, $this->imageRes, $left, $top, $left, $top, $width, $height, $width, $height) === false) {
+        if (imagecopyresampled($imageRes, $this->imageRes, $left, $top, 0, 0, $this->width(), $this->height(), $this->width(), $this->height()) === false) {
             // destroy image
             imagedestroy($imageRes);
 
