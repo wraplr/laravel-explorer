@@ -20,6 +20,9 @@ class CreateWlrleDirectoriesTable extends Migration
             $table->unsignedBigInteger('directory_id')->nullable();
             $table->foreign('directory_id')->references('id')->on('wlrle_directories')->onDelete('cascade');
             $table->timestamps();
+
+            // indexes
+            $table->index(['name']);
         });
 
         // insert root element
