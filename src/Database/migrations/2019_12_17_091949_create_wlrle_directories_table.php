@@ -22,7 +22,7 @@ class CreateWlrleDirectoriesTable extends Migration
             $table->timestamps();
 
             // indexes
-            $table->index(['name']);
+            $table->index('name');
         });
 
         // insert root element

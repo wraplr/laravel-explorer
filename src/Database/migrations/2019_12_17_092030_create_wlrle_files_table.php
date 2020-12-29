@@ -26,7 +26,8 @@ class CreateWlrleFilesTable extends Migration
             $table->timestamps();
 
             // indexes
-            $table->index(['name', 'file']);
+            $table->index('name');
+            $table->index('file');
         });
     }
 
