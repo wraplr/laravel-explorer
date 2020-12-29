@@ -22,6 +22,9 @@ class CreateWlrleDirectoriesTable extends Migration
             $table->timestamps();
         });
 
+        // indexes
+        $table->index(['name']);
+
         // insert root element
         DB::table('wlrle_directories')->insert([
             'name' => '',

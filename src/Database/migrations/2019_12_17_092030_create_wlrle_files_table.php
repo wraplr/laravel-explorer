@@ -25,6 +25,9 @@ class CreateWlrleFilesTable extends Migration
             $table->foreign('directory_id')->references('id')->on('wlrle_directories')->onDelete('cascade');
             $table->timestamps();
         });
+
+        // indexes
+        $table->index(['name', 'file']);
     }
 
     /**
