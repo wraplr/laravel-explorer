@@ -7,6 +7,7 @@ use Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Wraplr\LaravelExplorer\App\Http\Controllers\BaseController;
 use Wraplr\LaravelExplorer\App\WlrleDirectory;
 use Wraplr\LaravelExplorer\App\WlrleFile;
@@ -134,21 +135,29 @@ class ItemController extends BaseController
                             // phisical path, relative to base_directory/storage_directory
                             $path = Carbon::now()->format('Y/m/d');
 
-                            // create model
-                            $wlrleFile = new WlrleFile([
-                                'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
-                                'path' => $path,
-                                'file' => '',
-                                'extension' => $file->extension,
-                                'mime_type' => $file->mime_type,
-                                'size' => $file->size,
-                            ]);
+                            // generate unique id
+                            for (;;) {
+                                try {
+                                    // create model
+                                    $wlrleFile = new WlrleFile([
+                                        'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
+                                        'path' => $path,
+                                        'file' => Str::random(config('wlrle.filename_length')),
+                                        'extension' => $file->extension,
+                                        'mime_type' => $file->mime_type,
+                                        'size' => $file->size,
+                                    ]);
 
-                            // create new file in database
-                            $wlrleDirectory->files()->save($wlrleFile);
+                                    // create new file in database
+                                    $wlrleDirectory->files()->save($wlrleFile);
 
-                            // create unique hashid for file
-                            $wlrleFile->file = config('wlrle.file_hashid')($wlrleFile->id);
+                                    // done
+                                    break;
+                                } catch (\Exception $e) {
+                                    // failed
+                                    continue;
+                                }
+                            }
 
                             // new phisical full path
                             $full = $base.'/'.$path;
@@ -162,10 +171,7 @@ class ItemController extends BaseController
                             $storagePath = $full.'/'.$wlrleFile->file.($file->extension == '' ? '' : '.').$file->extension;
 
                             // copy file phisically
-                            if (@copy($file->storagePath(), $storagePath)) {
-                                // save file's hashid
-                                $wlrleFile->save();
-                            } else {
+                            if (!@copy($file->storagePath(), $storagePath)) {
                                 // copy error
                                 $wlrleFile->delete();
 
@@ -195,21 +201,29 @@ class ItemController extends BaseController
                     // phisical path, relative to base_directory/storage_directory
                     $path = Carbon::now()->format('Y/m/d');
 
-                    // create model
-                    $wlrleFile = new WlrleFile([
-                        'name' => $this->getUniqueFileName($currentDirectory, $file->name),
-                        'path' => $path,
-                        'file' => '',
-                        'extension' => $file->extension,
-                        'mime_type' => $file->mime_type,
-                        'size' => $file->size,
-                    ]);
+                    // generate unique id
+                    for (;;) {
+                        try {
+                            // create model
+                            $wlrleFile = new WlrleFile([
+                                'name' => $this->getUniqueFileName($currentDirectory, $file->name),
+                                'path' => $path,
+                                'file' => Str::random(config('wlrle.filename_length')),
+                                'extension' => $file->extension,
+                                'mime_type' => $file->mime_type,
+                                'size' => $file->size,
+                            ]);
 
-                    // create new file in database
-                    $currentDirectory->files()->save($wlrleFile);
+                            // create new file in database
+                            $currentDirectory->files()->save($wlrleFile);
 
-                    // create unique hashid for file
-                    $wlrleFile->file = config('wlrle.file_hashid')($wlrleFile->id);
+                            // done
+                            break;
+                        } catch (\Exception $e) {
+                            // failed
+                            continue;
+                        }
+                    }
 
                     // new phisical full path
                     $full = $base.'/'.$path;
@@ -223,10 +237,7 @@ class ItemController extends BaseController
                     $storagePath = $full.'/'.$wlrleFile->file.($file->extension == '' ? '' : '.').$file->extension;
 
                     // copy file phisically
-                    if (@copy($file->storagePath(), $storagePath)) {
-                        // save file's hashid
-                        $wlrleFile->save();
-                    } else {
+                    if (!@copy($file->storagePath(), $storagePath)) {
                         // copy error
                         $wlrleFile->delete();
 

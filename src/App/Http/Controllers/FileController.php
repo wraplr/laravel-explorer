@@ -7,6 +7,7 @@ use Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Wraplr\LaravelExplorer\App\Http\Controllers\BaseController;
 use Wraplr\LaravelExplorer\App\WlrleFile;
 
@@ -52,22 +53,33 @@ class FileController extends BaseController
         // check for unique file name
         $fileName = $this->getUniqueFileName($currentDirectory, $file->getClientOriginalName());
 
-        // create model
-        $wlrleFile = new WlrleFile([
-            'name' => $fileName,
-            'path' => $path,
-            'file' => '',
-            'extension' => $file->getClientOriginalExtension(),
-            'mime_type' => mime_content_type($file->getPathName()),
-            'size' => $file->getSize(),
-        ]);
+        // get mime type
+        $mime_type = mime_content_type($file->getPathName());
 
-        if (in_array($wlrleFile->mime_type, config('wlrle.valid_file_mime_types'))) {
-            // create new file in database
-            $currentDirectory->files()->save($wlrleFile);
+        if (in_array($mime_type, config('wlrle.valid_file_mime_types'))) {
+            // generate unique id
+            for (;;) {
+                try {
+                    // create model
+                    $wlrleFile = new WlrleFile([
+                        'name' => $fileName,
+                        'path' => $path,
+                        'file' => Str::random(config('wlrle.filename_length')),
+                        'extension' => $file->getClientOriginalExtension(),
+                        'mime_type' => $mime_type,
+                        'size' => $file->getSize(),
+                    ]);
 
-            // create unique hashid for file
-            $wlrleFile->file = config('wlrle.file_hashid')($wlrleFile->id);
+                    // create new file in database
+                    $currentDirectory->files()->save($wlrleFile);
+
+                    // done
+                    break;
+                } catch (\Exception $e) {
+                    // failed
+                    continue;
+                }
+            }
 
             // new phisical name
             $storageName = $wlrleFile->file.($wlrleFile->extension == '' ? '' : '.').$wlrleFile->extension;
@@ -82,9 +94,6 @@ class FileController extends BaseController
                     'message' => 'Server error (can not move the file from temp folder to '.$full.'/'.$storageName.')!',
                 ], 400);
             }
-
-            // save file's hashid
-            $wlrleFile->save();
         } else {
             // move to temp path
             if ($file->move($base, $file->getFilename())) {

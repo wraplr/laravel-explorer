@@ -16,13 +16,10 @@ class CreateWlrleDirectoriesTable extends Migration
     {
         Schema::create('wlrle_directories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
+            $table->string('name')->index();
             $table->unsignedBigInteger('directory_id')->nullable();
             $table->foreign('directory_id')->references('id')->on('wlrle_directories')->onDelete('cascade');
             $table->timestamps();
-
-            // indexes
-            $table->index('name');
         });
 
         // insert root element
