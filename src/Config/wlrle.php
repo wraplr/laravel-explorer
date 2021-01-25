@@ -50,19 +50,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | File Hashid
+    | Filename Length
     |--------------------------------------------------------------------------
     |
-    | Method to created a unique hash id based on filename's id for each file.
-    | We use it for the filename to store it physically.
-    | By default we use the file's id, but you can convert it to a longer,
-    | unique hashid.
+    | All the files will have a unique, generated name in the physical storage.
+    | You can set the length of it with this parameter.
+    | By default it is 16.
     |
     */
 
-    'file_hashid' => function($id) {
-        return $id;
-    },
+    'filename_length' => 16,
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +67,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If it set to true, the system will transform the date path to a filename,
-    | like: storage/files/2019/12/17/image.jpg => storage/files/20191217image.jpg
+    | like: storage/files/2019/12/17/generatedfilename.jpg => storage/files/20191217generatedfilename.jpg
     | Don't forget to add the required rewrite rule to your webserver.
     |
     */
