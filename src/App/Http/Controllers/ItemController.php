@@ -142,7 +142,7 @@ class ItemController extends BaseController
                                     $wlrleFile = new WlrleFile([
                                         'name' => $this->getUniqueFileName($wlrleDirectory, $file->name),
                                         'path' => $path,
-                                        'file' => Str::random(config('wlrle.filename_length')),
+                                        'file' => Str::lower(Str::random(config('wlrle.filename_length'))),
                                         'extension' => $file->extension,
                                         'mime_type' => $file->mime_type,
                                         'size' => $file->size,
@@ -208,7 +208,7 @@ class ItemController extends BaseController
                             $wlrleFile = new WlrleFile([
                                 'name' => $this->getUniqueFileName($currentDirectory, $file->name),
                                 'path' => $path,
-                                'file' => Str::random(config('wlrle.filename_length')),
+                                'file' => Str::lower(Str::random(config('wlrle.filename_length'))),
                                 'extension' => $file->extension,
                                 'mime_type' => $file->mime_type,
                                 'size' => $file->size,

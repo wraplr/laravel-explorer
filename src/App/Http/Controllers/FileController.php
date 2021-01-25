@@ -64,7 +64,7 @@ class FileController extends BaseController
                     $wlrleFile = new WlrleFile([
                         'name' => $fileName,
                         'path' => $path,
-                        'file' => Str::random(config('wlrle.filename_length')),
+                        'file' => Str::lower(Str::random(config('wlrle.filename_length'))),
                         'extension' => $file->getClientOriginalExtension(),
                         'mime_type' => $mime_type,
                         'size' => $file->getSize(),
